@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="这是棒子的一款游戏保护，知名度好像不是很高，网上搜了一圈得到的信息很少，于是只能自己动手了。中途因为难度太大（对我而言）弃坑了好几次，现在基本上放弃，遂分享一下成果。环境是win 10 64位系统下的某32位游戏。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XTrap简略分析">
+<meta property="og:url" content="http://sup817ch.github.io/2019/05/25/XTrap简略分析/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="这是棒子的一款游戏保护，知名度好像不是很高，网上搜了一圈得到的信息很少，于是只能自己动手了。中途因为难度太大（对我而言）弃坑了好几次，现在基本上放弃，遂分享一下成果。环境是win 10 64位系统下的某32位游戏。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-12-24T02:28:41.589Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XTrap简略分析">
+<meta name="twitter:description" content="这是棒子的一款游戏保护，知名度好像不是很高，网上搜了一圈得到的信息很少，于是只能自己动手了。中途因为难度太大（对我而言）弃坑了好几次，现在基本上放弃，遂分享一下成果。环境是win 10 64位系统下的某32位游戏。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2019/05/25/XTrap简略分析/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>XTrap简略分析 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2019/05/25/XTrap简略分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">XTrap简略分析
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-25 13:59:18" itemprop="dateCreated datePublished" datetime="2019-05-25T13:59:18+08:00">2019-05-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-24 10:28:41" itemprop="dateModified" datetime="2020-12-24T10:28:41+08:00">2020-12-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这是棒子的一款游戏保护，知名度好像不是很高，网上搜了一圈得到的信息很少，于是只能自己动手了。中途因为难度太大（对我而言）弃坑了好几次，现在基本上放弃，遂分享一下成果。环境是win 10 64位系统下的某32位游戏。</p>
+<a id="more"></a>
+<h1 id="驱动层"><a href="#驱动层" class="headerlink" title="驱动层"></a>驱动层</h1><p>通过<code>PCHunter</code>观察得知，该保护的驱动文件在路径<code>C:\Windows\SysWOW64\drivers</code>下。拖进<code>DIE</code>中显示驱动是没有壳的，于是可以很高兴的直接拖进IDA中。</p>
+<p>整个驱动文件其实不大，只有几十kb，IDA中分析出来的函数也只有二三十个，允许我们一个个看过去。在这个驱动中有个贯穿全文的全局变量，我把它命名为<code>XtrapGlobalData</code>，在这里我先把我分析得到该变量有限的结构体贴出。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">XTRAP_GLOBAL_DATA</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  ULONG32 MajorVersion;</span><br><span class="line">  ULONG32 MinorVersion;</span><br><span class="line">  ULONG32 BuildNumber;</span><br><span class="line">  ULONG32 Unknown1;</span><br><span class="line">  WINDOWS_VERSION WindowsVersionMark;</span><br><span class="line">  XTRAP_FIELD_OFFSET Offset;</span><br><span class="line">  CHAR Unknown2[<span class="number">36</span>];</span><br><span class="line">  SYSTEM_HANDLE_TABLE_ENTRY_INFO Unknown3[<span class="number">2</span>];</span><br><span class="line">  ULONG64 Unknown4;</span><br><span class="line">  ULONG64 ThreadHandle1;</span><br><span class="line">  ULONG64 ThreadHandle2;</span><br><span class="line">  ULONG32 Start;</span><br><span class="line">  ULONG64 CurrentPid;</span><br><span class="line">  ULONG64 CurrentEpr;</span><br><span class="line">  ULONG32 Unknown5;</span><br><span class="line">  XTRAP_HANDLE_INFORMATION XtrapHandleInfo;</span><br><span class="line">  CHAR Unknown6[<span class="number">16</span>];</span><br><span class="line">  ULONG64 CallbackHandle;</span><br><span class="line">  ULONG32 UnknownPid[<span class="number">6</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">XTRAP_FIELD_OFFSET</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  ULONG32 KPROCESS_ThreadListHead;</span><br><span class="line">  ULONG32 EPROCESS_UniqueProcessId;</span><br><span class="line">  ULONG32 EPROCESS_ImageFileName;</span><br><span class="line">  ULONG32 EPROCESS_InheritedFromUniqueProcessId;</span><br><span class="line">  ULONG32 EPROCESS_ThreadListHead;</span><br><span class="line">  ULONG32 KTHREAD_ThreadListEntry;</span><br><span class="line">  ULONG32 KTHREAD_WaitMode;</span><br><span class="line">  ULONG32 KTHREAD_WaitReason;</span><br><span class="line">  ULONG32 KTHREAD_FreezeCount;</span><br><span class="line">  ULONG32 KTHREAD_SuspendCount;</span><br><span class="line">  ULONG32 ETHREAD_Win32StartAddress;</span><br><span class="line">  ULONG32 ETHREAD_Cid;</span><br><span class="line">  ULONG32 ETHREAD_ThreadListEntry;</span><br><span class="line">  ULONG32 ETHREAD_CrossThreadFlags;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">XTRAP_HANDLE_INFORMATION</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	ULONG HandleCounts;</span><br><span class="line">	ULONG UniqueProcessId[<span class="number">30</span>];</span><br><span class="line">	ULONG GrantedAccess[<span class="number">30</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="DriverEntry"><a href="#DriverEntry" class="headerlink" title="DriverEntry"></a>DriverEntry</h2><p>首先初始化了设备名和符号链接名，从而得知了应用层和驱动层是通过设备通信的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">memmove(&amp;SourceString, <span class="string">L"\\Device\\X6va066"</span>, <span class="number">0x20</span>u);<span class="comment">// DeviceName</span></span><br><span class="line">memmove(&amp;Dst, <span class="string">L"\\DosDevices\\X6va066"</span>, <span class="number">0x28</span>u);<span class="comment">// SymbolicLinkName</span></span><br></pre></td></tr></table></figure>
+<p>使用<code>PsGetVersion</code>获取版本号，确认系统版本。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">PsGetVersion(&amp;MajorVersion, &amp;MinorVersion, &amp;BuildNumber, <span class="number">0</span>i64);</span><br><span class="line">WindowsVersionMark = WINDOWS_UNKNOWN0;</span><br><span class="line"><span class="keyword">if</span> ( MajorVersion == WINDOWS_7 )</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> ( MinorVersion != WINDOWS_XP_PRO_X64 )</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0xC00000BB</span>;</span><br><span class="line">    WindowsVersionMark = WINDOWS_XP_PRO_X64;    <span class="comment">// Windows XP Professional x64</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( MajorVersion != WINDOWS_8 )</span><br><span class="line">    <span class="keyword">goto</span> LABEL_13;</span><br><span class="line"><span class="keyword">if</span> ( !MinorVersion )</span><br><span class="line">    WindowsVersionMark = WINDOWS_VISTA;         <span class="comment">// Windows Vista</span></span><br><span class="line"><span class="keyword">if</span> ( MinorVersion == <span class="number">1</span> )</span><br><span class="line">    WindowsVersionMark = WINDOWS_7;             <span class="comment">// Windows 7</span></span><br><span class="line"><span class="keyword">if</span> ( MinorVersion == <span class="number">2</span> )</span><br><span class="line">    WindowsVersionMark = WINDOWS_8;             <span class="comment">// Windows 8</span></span><br><span class="line"><span class="keyword">if</span> ( MinorVersion == <span class="number">3</span> )</span><br><span class="line">&#123;</span><br><span class="line">    WindowsVersionMark = <span class="number">7</span>;                     <span class="comment">// Window 8.1</span></span><br><span class="line">    LABEL_13:</span><br><span class="line">    <span class="keyword">if</span> ( MajorVersion == WINDOWS_10_14393 &amp;&amp; !MinorVersion )</span><br><span class="line">    &#123;                                           <span class="comment">// Win 10</span></span><br><span class="line">        WindowsVersionMark = <span class="number">8</span>;                   <span class="comment">// Win 10 under 10586 ?</span></span><br><span class="line">        <span class="keyword">if</span> ( BuildNumber &gt;= <span class="number">10586</span> )</span><br><span class="line">            WindowsVersionMark = WINDOWS_10_10586;  <span class="comment">// Win 10 10586</span></span><br><span class="line">        <span class="keyword">if</span> ( BuildNumber &gt;= <span class="number">14393</span> )</span><br><span class="line">            WindowsVersionMark = WINDOWS_10_14393;  <span class="comment">// Win 10 14393</span></span><br><span class="line">        <span class="keyword">if</span> ( BuildNumber &gt;= <span class="number">15063</span> )</span><br><span class="line">            WindowsVersionMark = WINDOWS_10_15063;  <span class="comment">// Win 10 15063</span></span><br><span class="line">        <span class="keyword">if</span> ( BuildNumber &gt;= <span class="number">16299</span> )</span><br><span class="line">            WindowsVersionMark = WINDOWS_10_16299;  <span class="comment">// Win 10 16299</span></span><br><span class="line">        <span class="keyword">if</span> ( BuildNumber &gt;= <span class="number">17133</span> )</span><br><span class="line">            WindowsVersionMark = WINDOWS_10_17133;  <span class="comment">// Win 10 17133</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( WindowsVersionMark == WINDOWS_UNKNOWN0 )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0xC00000BB</span>;</span><br></pre></td></tr></table></figure>
+<p>根据系统版本，填写一些硬编码，比如各种结构的偏移。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( result == WINDOWS_10_10586 )</span><br><span class="line">&#123;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.KPROCESS_ThreadListHead = <span class="number">0x30</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.EPROCESS_UniqueProcessId = <span class="number">744</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.EPROCESS_InheritedFromUniqueProcessId = <span class="number">992</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.EPROCESS_ImageFileName = <span class="number">1104</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.EPROCESS_ThreadListHead = <span class="number">1160</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.KTHREAD_ThreadListEntry = <span class="number">0x2F8</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.KTHREAD_WaitMode = <span class="number">391</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.KTHREAD_WaitReason = <span class="number">643</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.KTHREAD_FreezeCount = <span class="number">120</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.KTHREAD_SuspendCount = <span class="number">644</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.ETHREAD_Win32StartAddress = <span class="number">1664</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.ETHREAD_Cid = <span class="number">1576</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.ETHREAD_ThreadListEntry = <span class="number">1680</span>;</span><br><span class="line">    v1_XtrapGlobalData-&gt;Offset.ETHREAD_CrossThreadFlags = <span class="number">1724</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>设置了设备的派遣函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Device-&gt;MajorFunction[<span class="number">0xE</span>] = DispatchGeneral;<span class="comment">// IRP_MJ_DEVICE_CONTROL</span></span><br><span class="line">Device-&gt;MajorFunction[<span class="number">0</span>] = DispatchGeneral; <span class="comment">// IRP_MJ_CREATE</span></span><br><span class="line">Device-&gt;MajorFunction[<span class="number">2</span>] = DispatchGeneral; <span class="comment">// IRP_MJ_CLOSE</span></span><br><span class="line">Device-&gt;MajorFunction[<span class="number">0x12</span>] = DispatchGeneral;<span class="comment">// IRP_MJ_CLEANUP</span></span><br></pre></td></tr></table></figure>
+<p>具体是在<code>DispatchGeneral</code>中判断功能号再调用对应的Dispatcher。</p>
+<h2 id="派遣函数"><a href="#派遣函数" class="headerlink" title="派遣函数"></a>派遣函数</h2><p>总共有3个函数，<code>DispatchCreate</code> <code>DispatchClose</code> 和 <code>DispatchIoControl</code> 分别对应<code>IRP_MJ_CREATE</code> <code>IRP_MJ_CLOSE</code> 和 <code>IRP_MJ_DEVICE_CONTROL</code>。</p>
+<h3 id="DispatchCreate"><a href="#DispatchCreate" class="headerlink" title="DispatchCreate"></a>DispatchCreate</h3><p>该函数做了几件事：一是使用<code>PsCreateSystemThread</code>创建了两个线程，这两个线程分别用来检测线程和查句柄；二是使用<code>ObRegisterCallbacks</code>注册了一个进程回调。</p>
+<p>先讲两个线程，其中一个线程用来检测被保护的游戏进程的线程是否被暂停，具体操作如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span></span><br><span class="line">&#123;</span><br><span class="line">    KeDelayExecutionThread(<span class="number">0</span>, <span class="number">0</span>, &amp;Interval);    <span class="comment">// 每秒循环一次</span></span><br><span class="line">    SuspendedThreadCount = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> ( XtrapGlobalData.CurrentEpr )</span><br><span class="line">    &#123;</span><br><span class="line">        ThreadListHead = (XtrapGlobalData.CurrentEpr + XtrapGlobalData.Offset.EPROCESS_ThreadListHead);</span><br><span class="line">        <span class="keyword">if</span> ( ThreadListHead )</span><br><span class="line">        &#123;</span><br><span class="line">            ThreadListEntry = ThreadListHead-&gt;Flink;</span><br><span class="line">            <span class="keyword">do</span></span><br><span class="line">            &#123;</span><br><span class="line">                EThread = ThreadListEntry - XtrapGlobalData.Offset.ETHREAD_ThreadListEntry;</span><br><span class="line">                <span class="keyword">if</span> ( *(&amp;ThreadListEntry-&gt;Flink</span><br><span class="line">                       + XtrapGlobalData.Offset.KTHREAD_SuspendCount</span><br><span class="line">                       - XtrapGlobalData.Offset.ETHREAD_ThreadListEntry)</span><br><span class="line">                    &amp;&amp; *(EThread + XtrapGlobalData.Offset.KTHREAD_WaitReason) == <span class="number">5</span><span class="comment">// _KWAIT_REASON Suspended</span></span><br><span class="line">                    &amp;&amp; *(EThread + XtrapGlobalData.Offset.ETHREAD_Win32StartAddress) &gt;= *&amp;XtrapGlobalData.Unknown2[<span class="number">4</span>]</span><br><span class="line">                    &amp;&amp; *(EThread + XtrapGlobalData.Offset.ETHREAD_Win32StartAddress) &lt;= *&amp;XtrapGlobalData.Unknown2[<span class="number">12</span>] )<span class="comment">// 猜测这里的两个Unknown指的是XTrapVa.dll的起始地址和结束地址</span></span><br><span class="line">                &#123;</span><br><span class="line">                    ++SuspendedThreadCount;             <span class="comment">// 记录被暂停的线程个数</span></span><br><span class="line">                &#125;</span><br><span class="line">                ThreadListEntry = ThreadListEntry-&gt;Flink;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span> ( ThreadListEntry != ThreadListHead );</span><br><span class="line">            <span class="keyword">if</span> ( SuspendedThreadCount &gt;= <span class="number">3</span> &amp;&amp; !LODWORD(XtrapGlobalData.Unknown4) )<span class="comment">// 暂停的线程大于等于3个就关闭游戏进程</span></span><br><span class="line">                TerminateProcessByPid(XtrapGlobalData.CurrentPid);</span><br><span class="line">            <span class="keyword">if</span> ( *&amp;XtrapGlobalData.Unknown2[<span class="number">24</span>] )</span><br><span class="line">                TerminateProcessByPid(XtrapGlobalData.CurrentPid);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> ( XtrapGlobalData.Start );</span><br></pre></td></tr></table></figure>
+<p>通过遍历游戏的ThreadList来检测游戏某个地址范围内的线程，我猜测这个范围是该保护本身的模块XTrapVa.dll（下面会讲），如果暂停的线程大于等于3个就结束进程，目的应该是为了防止调试器附加或者人为暂停该保护的检测线程。</p>
+<p>第二个线程是用来枚举拥有被保护游戏进程句柄的进程，操作如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( XtrapGlobalData.Start )</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )                                 <span class="comment">// 每秒循环一次</span></span><br><span class="line">    &#123;</span><br><span class="line">        CurrentEpr = XtrapGlobalData.CurrentEpr;</span><br><span class="line">        RetLength = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> ( !XtrapGlobalData.CurrentEpr )</span><br><span class="line">            <span class="keyword">goto</span> LABEL_22;</span><br><span class="line">        ZwQuerySystemInformation = GetAddrZwQuerySystemInformation();<span class="comment">// 获取ZwQuerySystemInformation的地址</span></span><br><span class="line">        <span class="keyword">if</span> ( !ZwQuerySystemInformation )</span><br><span class="line">            <span class="keyword">goto</span> LABEL_22;</span><br><span class="line">        buffer_v3 = ExAllocatePoolWithTag(<span class="number">0</span>, <span class="number">0x1000</span>ui64, &amp;Tag);</span><br><span class="line">        v4 = buffer_v3;</span><br><span class="line">        <span class="keyword">if</span> ( !buffer_v3 )</span><br><span class="line">            <span class="keyword">goto</span> LABEL_22;</span><br><span class="line">        status = ZwQuerySystemInformation(<span class="number">16</span>i64, buffer_v3, <span class="number">0x1000</span>i64, &amp;RetLength);<span class="comment">// SystemHandleInformation</span></span><br><span class="line">        v6 = v4;</span><br><span class="line">        <span class="keyword">if</span> ( status != <span class="number">0xC0000004</span> )</span><br><span class="line">            <span class="keyword">goto</span> LABEL_21;</span><br><span class="line">        ExFreePoolWithTag(v4, &amp;Tag);</span><br><span class="line">        v7 = RetLength + <span class="number">0x1000</span>;</span><br><span class="line">        buffer_v8 = ExAllocatePoolWithTag(<span class="number">0</span>, (RetLength + <span class="number">0x1000</span>), &amp;Tag);</span><br><span class="line">        SysHandleInfo = buffer_v8;</span><br><span class="line">        <span class="keyword">if</span> ( buffer_v8 )</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        LABEL_22:</span><br><span class="line">        KeDelayExecutionThread(<span class="number">0</span>, <span class="number">0</span>, &amp;Interval);  <span class="comment">// 1s</span></span><br><span class="line">        <span class="keyword">if</span> ( !XtrapGlobalData.Start )</span><br><span class="line">            <span class="keyword">goto</span> LABEL_23;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( !ZwQuerySystemInformation(<span class="number">16</span>i64, buffer_v8, v7, &amp;RetLength) )<span class="comment">// SystemHandleInformation 枚举系统句柄</span></span><br><span class="line">    &#123;</span><br><span class="line">        v10 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> ( LODWORD(SysHandleInfo-&gt;NumberOfHandles) )</span><br><span class="line">        &#123;</span><br><span class="line">            v11 = XtrapGlobalData.XtrapHandleInfo.HandleCounts;</span><br><span class="line">            v12 = &amp;SysHandleInfo-&gt;Handles[<span class="number">0</span>].GrantedAccess;</span><br><span class="line">            <span class="keyword">do</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> ( *(v12 - <span class="number">1</span>) == CurrentEpr )       <span class="comment">// Handles-&gt;Object 判断句柄对象是否是本身进程</span></span><br><span class="line">                &#123;</span><br><span class="line">                    UniqueProcessId = *(v12 - <span class="number">8</span>);       <span class="comment">// Handles-&gt;UniqueProcessId</span></span><br><span class="line">                    GrantedAccess = *v12;</span><br><span class="line">                    <span class="keyword">if</span> ( *(v12 - <span class="number">8</span>) )                   <span class="comment">// Handles-&gt;UniqueProcessId</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span> ( UniqueProcessId != <span class="number">4</span> )       <span class="comment">// 判断是否是System进程</span></span><br><span class="line">                        &#123;                                 <span class="comment">// 不是System进程</span></span><br><span class="line">                            v15 = <span class="number">0</span>;</span><br><span class="line">                            <span class="keyword">if</span> ( v11 )</span><br><span class="line">                            &#123;</span><br><span class="line">                                v16 = XtrapGlobalData.XtrapHandleInfo.UniqueProcessId;</span><br><span class="line">                                <span class="keyword">while</span> ( UniqueProcessId != *v16 )</span><br><span class="line">                                &#123;                             <span class="comment">// 检查UniqueProcessId是否重复</span></span><br><span class="line">                                    ++v15;</span><br><span class="line">                                    ++v16;</span><br><span class="line">                                    <span class="keyword">if</span> ( v15 &gt;= v11 )</span><br><span class="line">                                        <span class="keyword">goto</span> LABEL_17;</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                            <span class="keyword">else</span></span><br><span class="line">                            &#123;</span><br><span class="line">                                LABEL_17:</span><br><span class="line">                                <span class="keyword">if</span> ( v11 &lt; <span class="number">30</span> )               <span class="comment">// 如果UniqueProcessId没有重复且总量小于30个就记录</span></span><br><span class="line">                                &#123;</span><br><span class="line">                                    XtrapGlobalData.XtrapHandleInfo.UniqueProcessId[v11 + <span class="number">1</span>] = UniqueProcessId;</span><br><span class="line">                                    XtrapGlobalData.XtrapHandleInfo.GrantedAccess[XtrapGlobalData.XtrapHandleInfo.HandleCounts + <span class="number">1</span>] = GrantedAccess;</span><br><span class="line">                                    v11 = XtrapGlobalData.XtrapHandleInfo.HandleCounts++ + <span class="number">1</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                ++v10;</span><br><span class="line">                v12 += <span class="number">6</span>;                             <span class="comment">// 下一个句柄</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span> ( v10 &lt; LODWORD(SysHandleInfo-&gt;NumberOfHandles) );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    v6 = SysHandleInfo;</span><br><span class="line">    LABEL_21:</span><br><span class="line">    ExFreePoolWithTag(v6, &amp;Tag);</span><br><span class="line">    <span class="keyword">goto</span> LABEL_22;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过调用<code>ZwQuerySystemInformation</code>的16号功能<code>SystemHandleInformation</code>遍历系统中所有的句柄，从中找出指向被保护的游戏进程的句柄，将拥有该句柄的进程的<code>PID</code>以及权限<code>GrantedAccess</code>记录到<code>XtrapGlobalData</code>当中。记录的格式是<code>UniqueProcessId[i]</code>对应<code>GrantedAccess[i]</code>。</p>
+<p>然后是进程回调，做的事情和上面那个线程大同小异，代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">__int64 __<span class="function">fastcall <span class="title">PreProcessCallback</span><span class="params">(PVOID RegistrationContext, POB_PRE_OPERATION_INFORMATION OperationInformation)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">EPROCESS</span> *<span class="title">TargetEpr</span>;</span> <span class="comment">// rbx</span></span><br><span class="line">  POB_PRE_OPERATION_INFORMATION OperationInformation_v3; <span class="comment">// rsi</span></span><br><span class="line">  XTRAP_GLOBAL_DATA *XtrapGlobalData; <span class="comment">// rdi</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">EPROCESS</span> *<span class="title">CurrentEpr</span>;</span> <span class="comment">// rbp</span></span><br><span class="line">  <span class="keyword">int</span> TargetPid; <span class="comment">// ebx</span></span><br><span class="line">  <span class="keyword">int</span> CurrentPid; <span class="comment">// eax</span></span><br><span class="line">  ULONG DesiredAccess; <span class="comment">// edx</span></span><br><span class="line">  ULONG32 v9; <span class="comment">// ecx</span></span><br><span class="line">  <span class="keyword">int</span> v10; <span class="comment">// ecx</span></span><br><span class="line">  <span class="keyword">int</span> v11; <span class="comment">// er8</span></span><br><span class="line"></span><br><span class="line">  TargetEpr = OperationInformation-&gt;Object;</span><br><span class="line">  OperationInformation_v3 = OperationInformation;</span><br><span class="line">  XtrapGlobalData = RegistrationContext;</span><br><span class="line">  CurrentEpr = IoGetCurrentProcess();</span><br><span class="line">  <span class="keyword">if</span> ( CurrentEpr != TargetEpr &amp;&amp; !(OperationInformation_v3-&gt;Flags &amp; <span class="number">1</span>) )<span class="comment">// 句柄的对象不是自身且句柄不是内核句柄</span></span><br><span class="line">  &#123;</span><br><span class="line">    TargetPid = PsGetProcessId(TargetEpr);</span><br><span class="line">    CurrentPid = PsGetProcessId(CurrentEpr);</span><br><span class="line">    DesiredAccess = OperationInformation_v3-&gt;Parameters-&gt;CreateHandleInformation.OriginalDesiredAccess;</span><br><span class="line">    v9 = XtrapGlobalData-&gt;UnknownPid[<span class="number">5</span>];        <span class="comment">// 推测为被保护进程的PID</span></span><br><span class="line">    <span class="keyword">if</span> ( TargetPid == v9 )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> ( DesiredAccess &amp; <span class="number">0x20</span> )               <span class="comment">// PROCESS_VM_WRITE</span></span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">if</span> ( CurrentPid != XtrapGlobalData-&gt;UnknownPid[<span class="number">0</span>]</span><br><span class="line">          &amp;&amp; CurrentPid != XtrapGlobalData-&gt;UnknownPid[<span class="number">1</span>]</span><br><span class="line">          &amp;&amp; CurrentPid != XtrapGlobalData-&gt;UnknownPid[<span class="number">2</span>]</span><br><span class="line">          &amp;&amp; CurrentPid != XtrapGlobalData-&gt;UnknownPid[<span class="number">3</span>]</span><br><span class="line">          &amp;&amp; CurrentPid != v9</span><br><span class="line">          &amp;&amp; OperationInformation_v3-&gt;Operation == <span class="number">1</span> )<span class="comment">// OB_OPERATION_HANDLE_CREATE</span></span><br><span class="line">        &#123;</span><br><span class="line">          v10 = XtrapGlobalData-&gt;Unknown3[<span class="number">0</span>].UniqueProcessId;</span><br><span class="line">          <span class="keyword">if</span> ( CurrentPid != v10 )</span><br><span class="line">          &#123;</span><br><span class="line">            v11 = XtrapGlobalData-&gt;Unknown3[<span class="number">1</span>].UniqueProcessId;</span><br><span class="line">            <span class="keyword">if</span> ( CurrentPid != v11 )</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="keyword">if</span> ( v10 )</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="keyword">if</span> ( !v11 )</span><br><span class="line">                &#123;</span><br><span class="line">                  XtrapGlobalData-&gt;Unknown3[<span class="number">1</span>].UniqueProcessId = CurrentPid;</span><br><span class="line">                  XtrapGlobalData-&gt;Unknown3[<span class="number">1</span>].GrantedAccess = DesiredAccess;</span><br><span class="line">                  XtrapGlobalData-&gt;Unknown3[<span class="number">1</span>].Object = CurrentEpr;</span><br><span class="line">                &#125;</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">else</span></span><br><span class="line">              &#123;</span><br><span class="line">                XtrapGlobalData-&gt;Unknown3[<span class="number">0</span>].UniqueProcessId = CurrentPid;</span><br><span class="line">                XtrapGlobalData-&gt;Unknown3[<span class="number">0</span>].GrantedAccess = DesiredAccess;</span><br><span class="line">                XtrapGlobalData-&gt;Unknown3[<span class="number">0</span>].Object = CurrentEpr;</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>i64;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>记录以<code>PROCESS_VM_WRITE</code>权限打开游戏的进程的<code>PID</code>和<code>EPROCESS</code>以及打开的权限<code>GrantedAccess</code>。</p>
+<h3 id="DispatchClose"><a href="#DispatchClose" class="headerlink" title="DispatchClose"></a>DispatchClose</h3><p>主要做了一些清理操作，比如取消进程回调，结束两个检测的线程等等。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">DispatchClose</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">void</span> (__fastcall *ObUnRegisterCallbacks)(<span class="keyword">void</span> *); <span class="comment">// rax</span></span><br><span class="line">  UNICODE_STRING DestinationString; <span class="comment">// [rsp+20h] [rbp-48h]</span></span><br><span class="line">  WCHAR SourceString[<span class="number">2</span>]; <span class="comment">// [rsp+30h] [rbp-38h]</span></span><br><span class="line">  <span class="keyword">char</span> Dst; <span class="comment">// [rsp+34h] [rbp-34h]</span></span><br><span class="line"></span><br><span class="line">  *SourceString = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">memset</span>(&amp;Dst, <span class="number">0</span>, <span class="number">0x2C</span>u);</span><br><span class="line">  DecryptString(&amp;encstr_ObUnRegisterCallbacks, <span class="number">0x30</span>u, SourceString);</span><br><span class="line">  RtlInitUnicodeString(&amp;DestinationString, SourceString);</span><br><span class="line">  ObUnRegisterCallbacks = MmGetSystemRoutineAddress(&amp;DestinationString);<span class="comment">// ObUnRegisterCallbacks</span></span><br><span class="line">  <span class="keyword">if</span> ( ObUnRegisterCallbacks &amp;&amp; XtrapGlobalData.CallbackHandle )</span><br><span class="line">  &#123;</span><br><span class="line">    (ObUnRegisterCallbacks)();</span><br><span class="line">    XtrapGlobalData.Unknown3[<span class="number">0</span>].UniqueProcessId = <span class="number">0</span>;</span><br><span class="line">    XtrapGlobalData.Unknown3[<span class="number">1</span>].UniqueProcessId = <span class="number">0</span>;</span><br><span class="line">    XtrapGlobalData.CallbackHandle = <span class="number">0</span>i64;</span><br><span class="line">  &#125;</span><br><span class="line">  *XtrapGlobalData.Unknown2 = <span class="number">0</span>;</span><br><span class="line">  *&amp;XtrapGlobalData.Unknown2[<span class="number">4</span>] = <span class="number">0</span>i64;</span><br><span class="line">  *&amp;XtrapGlobalData.Unknown2[<span class="number">12</span>] = <span class="number">0</span>i64;</span><br><span class="line">  *&amp;XtrapGlobalData.Unknown2[<span class="number">20</span>] = <span class="number">0</span>;</span><br><span class="line">  *&amp;XtrapGlobalData.Unknown2[<span class="number">24</span>] = <span class="number">0</span>;</span><br><span class="line">  *&amp;XtrapGlobalData.Unknown2[<span class="number">28</span>] = <span class="number">0</span>;</span><br><span class="line">  XtrapGlobalData.Start = <span class="number">0</span>;</span><br><span class="line">  XtrapGlobalData.CurrentPid = <span class="number">0</span>i64;</span><br><span class="line">  XtrapGlobalData.CurrentEpr = <span class="number">0</span>i64;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">memset</span>(&amp;XtrapGlobalData.Unknown5, <span class="number">0</span>, <span class="number">0x108</span>u);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DispatchIoControl"><a href="#DispatchIoControl" class="headerlink" title="DispatchIoControl"></a>DispatchIoControl</h3><p>这个就是负责通信的函数了，很常规的通过自己定义的控制码来进行通信。总共定义了5个控制码<code>0x86000880</code> <code>0x8600089C</code> <code>0x860008C0</code> <code>0x86000900</code> <code>0x86001804</code>，这里挑几个通过已知条件能整得明白的讲。</p>
+<h4 id="控制码0x86000880"><a href="#控制码0x86000880" class="headerlink" title="控制码0x86000880"></a>控制码0x86000880</h4><p>主要工作就是把之前通过进程回调和检测线程记录下来的游戏认为的可疑进程的相关信息稍做加工后传回应用层。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="number">0x86000880</span>:</span><br><span class="line">    <span class="keyword">if</span> ( SystemBuffer &amp;&amp; InputBufferLength == <span class="number">0x790</span> &amp;&amp; OutBuffer &amp;&amp; OutputBufferLength == <span class="number">0x790</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        memmove(Dst, SystemBuffer, <span class="number">0x790</span>u);</span><br><span class="line">        CurrentEpr = IoGetCurrentProcess();</span><br><span class="line">        sub_11CC0(&amp;XtrapGlobalData, CurrentEpr, Dst);<span class="comment">// 记录拥有自身进程句柄的非指定进程的各种信息</span></span><br><span class="line">        sub_11BA0(&amp;XtrapGlobalData, XtrapGlobalData.CurrentEpr, &amp;Dst[<span class="number">424</span>]);<span class="comment">// 记录SuspectProcess的EPROCESS 父进程ID ImageFileName</span></span><br><span class="line">        memmove(OutBuffer, Dst, <span class="number">0x790</span>u);</span><br><span class="line">        IoStatus-&gt;Information = <span class="number">0x790</span>i64;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>sub_11CC0</code>做的工作好像和之前有点重复，这里不再讲。<code>sub_11BA0</code>则是获取之前记录下来的可疑进程的父进程ID和进程名，然后将它们传回应用层。</p>
+<h4 id="控制码0x86001804"><a href="#控制码0x86001804" class="headerlink" title="控制码0x86001804"></a>控制码0x86001804</h4><p>主要工作是遍历游戏的线程，然后把相关信息传回应用层。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">PEPROCESS __<span class="function">fastcall <span class="title">sub_12160</span><span class="params">(XTRAP_GLOBAL_DATA *XtrapGlobalData, _DWORD *a2, _DWORD *a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _DWORD *v3; <span class="comment">// rbx</span></span><br><span class="line">  _DWORD *v4; <span class="comment">// rdi</span></span><br><span class="line">  XTRAP_GLOBAL_DATA *XtrapGlobalData_v5; <span class="comment">// rsi</span></span><br><span class="line">  PEPROCESS v6; <span class="comment">// rax</span></span><br><span class="line">  __int64 v7; <span class="comment">// r8</span></span><br><span class="line">  _QWORD **ThreadListHead; <span class="comment">// rcx</span></span><br><span class="line">  _QWORD *ThreadListEntry; <span class="comment">// r9</span></span><br><span class="line">  _QWORD *v10; <span class="comment">// rdx</span></span><br><span class="line">  _DWORD *v11; <span class="comment">// r10</span></span><br><span class="line">  <span class="keyword">char</span> *Thread; <span class="comment">// r11</span></span><br><span class="line">  <span class="keyword">char</span> WaitMode; <span class="comment">// bp</span></span><br><span class="line">  <span class="keyword">char</span> WaitReason; <span class="comment">// r12</span></span><br><span class="line">  <span class="keyword">char</span> SuspendCount; <span class="comment">// r13</span></span><br><span class="line">  <span class="keyword">int</span> CrossThreadFlags; <span class="comment">// er14</span></span><br><span class="line">  __int64 Win32StartAddress; <span class="comment">// r15</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">EPROCESS</span> *<span class="title">ThreadId</span>;</span> <span class="comment">// rax</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">EPROCESS</span> *<span class="title">v19</span>;</span> <span class="comment">// [rsp+60h] [rbp+18h]</span></span><br><span class="line"></span><br><span class="line">  v3 = a3;</span><br><span class="line">  v4 = a2;</span><br><span class="line">  XtrapGlobalData_v5 = XtrapGlobalData;</span><br><span class="line">  *a3 = <span class="number">0x60001</span>;</span><br><span class="line">  a3[<span class="number">3</span>] = <span class="number">0x600000</span>;</span><br><span class="line">  v6 = IoGetCurrentProcess();</span><br><span class="line">  v7 = <span class="number">0</span>i64;</span><br><span class="line">  <span class="keyword">if</span> ( !v6 )</span><br><span class="line">  &#123;</span><br><span class="line">    v3[<span class="number">1</span>] = <span class="number">0x60002</span>;</span><br><span class="line">LABEL_3:</span><br><span class="line">    v3[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> v6;</span><br><span class="line">  &#125;</span><br><span class="line">  ThreadListHead = (v6 + XtrapGlobalData_v5-&gt;Offset.EPROCESS_ThreadListHead);</span><br><span class="line">  <span class="keyword">if</span> ( !ThreadListHead )</span><br><span class="line">  &#123;</span><br><span class="line">    v3[<span class="number">1</span>] = <span class="number">0x60003</span>;</span><br><span class="line">    <span class="keyword">goto</span> LABEL_3;</span><br><span class="line">  &#125;</span><br><span class="line">  ThreadListEntry = *ThreadListHead;</span><br><span class="line">  v10 = v4 + <span class="number">566</span>;</span><br><span class="line">  v11 = v4 + <span class="number">115</span>;</span><br><span class="line">  <span class="keyword">do</span></span><br><span class="line">  &#123;</span><br><span class="line">    Thread = ThreadListEntry - XtrapGlobalData_v5-&gt;Offset.ETHREAD_ThreadListEntry;</span><br><span class="line">    WaitMode = Thread[XtrapGlobalData_v5-&gt;Offset.KTHREAD_WaitMode];</span><br><span class="line">    WaitReason = Thread[XtrapGlobalData_v5-&gt;Offset.KTHREAD_WaitReason];</span><br><span class="line">    SuspendCount = Thread[XtrapGlobalData_v5-&gt;Offset.KTHREAD_SuspendCount];</span><br><span class="line">    CrossThreadFlags = *&amp;Thread[XtrapGlobalData_v5-&gt;Offset.ETHREAD_CrossThreadFlags];</span><br><span class="line">    Win32StartAddress = *&amp;Thread[XtrapGlobalData_v5-&gt;Offset.ETHREAD_Win32StartAddress];</span><br><span class="line">    ThreadId = *&amp;Thread[XtrapGlobalData_v5-&gt;Offset.ETHREAD_Cid + <span class="number">8</span>];</span><br><span class="line">    ++*v4;</span><br><span class="line">    v19 = ThreadId;</span><br><span class="line">    v6 = v4[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">if</span> ( v6 &lt; <span class="number">150</span> )</span><br><span class="line">    &#123;                                           <span class="comment">// 获取当前进程每个线程的状态</span></span><br><span class="line">      v4[<span class="number">1</span>] = v6 + <span class="number">1</span>;</span><br><span class="line">      v6 = v19;</span><br><span class="line">      *(v4 + v7 + <span class="number">8</span>) = WaitMode;</span><br><span class="line">      *(v4 + v7 + <span class="number">158</span>) = WaitReason;</span><br><span class="line">      *(v4 + v7 + <span class="number">308</span>) = SuspendCount;</span><br><span class="line">      *v11 = CrossThreadFlags;</span><br><span class="line">      *(v10 - <span class="number">150</span>) = v19;                       <span class="comment">// ThreadId</span></span><br><span class="line">      *v10 = Win32StartAddress;</span><br><span class="line">      v10[<span class="number">150</span>] = Thread;</span><br><span class="line">    &#125;</span><br><span class="line">    ThreadListEntry = *ThreadListEntry;</span><br><span class="line">    ++v7;</span><br><span class="line">    ++v11;</span><br><span class="line">    ++v10;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( ThreadListEntry != ThreadListHead );</span><br><span class="line">  *v3 = <span class="number">0x60001</span>;</span><br><span class="line">  v3[<span class="number">3</span>] = <span class="number">0x600001</span>;</span><br><span class="line">  <span class="keyword">return</span> v6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过该函数和一些其它信息可以整理出一个结构体。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">XTRAP_THREAD_ENUM_INFO</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	ULONG32 ThreadCount1;</span><br><span class="line">	ULONG32 ThreadCount2;</span><br><span class="line">	UCHAR WaitMode[<span class="number">150</span>];</span><br><span class="line">	UCHAR WaitReason[<span class="number">150</span>];</span><br><span class="line">	UCHAR SuspendCount[<span class="number">150</span>];</span><br><span class="line">	ULONG32 CrossThreadFlags[<span class="number">150</span>];</span><br><span class="line">	ULONG64 UniqueThread[<span class="number">150</span>];</span><br><span class="line">	ULONG64 Win32StartAddress[<span class="number">150</span>];</span><br><span class="line">	ULONG64 EthreadAddress[<span class="number">150</span>];</span><br><span class="line">&#125;XTRAP_THREAD_ENUM_INFO, *PXTRAP_THREAD_ENUM_INFO;</span><br></pre></td></tr></table></figure>
+<p>这个结构体就是该控制码传回应用层的内容，也就是说记录了游戏每个线程在这个结构体里有的成员。和<code>XTRAP_HANDLE_INFORMATION</code>类似，每个结构体成员同一个索引对应的就是同一个线程。不过这里还有一个有趣的地方就是这个结构体不是明文传回应用层的，还做了一个很简单的加密。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span></span><br><span class="line">&#123;                                             <span class="comment">// buffer内容加密</span></span><br><span class="line">    *buffer = ~*buffer;</span><br><span class="line">    ++buffer;</span><br><span class="line">    --buffer_len;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> ( buffer_len );</span><br></pre></td></tr></table></figure>
+<p>大概就是把这个结构体的每个字节取反，加解密都是同样的操作。</p>
+<h4 id="其他控制码"><a href="#其他控制码" class="headerlink" title="其他控制码"></a>其他控制码</h4><p>其他的控制码做的工作主要是让应用层传了一些信息过来设置了<code>XtrapGlobalData</code>中的<code>Unknown</code>部分，以及一些蜜汁操作（反调试？），比如修改<code>ETHREAD</code>中的<code>FreezeCount</code>和<code>SuspendCount</code>。通过已知条件尚不能解释得很清楚，所以这里就不讲了。</p>
+<h2 id="驱动层总结"><a href="#驱动层总结" class="headerlink" title="驱动层总结"></a>驱动层总结</h2><p>驱动部分其实没做多少事情，主要是收集信息然后传回应用层接着分析。</p>
+<h1 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h1><p>其实应用层才是让人崩溃的地方。</p>
+<p>看了一下<code>XTrap</code>的文件夹，确定了两个比较主要的文件<code>XTrap.xt</code>和<code>XTrapVa.dll</code>。使用<code>DIE</code></p>
+<p>查壳显示<code>Themida/Winlicense(2.X)[-]</code>，WDNMD直接就来了个下马威。不过通过大量的百度我还是稀里糊涂的把壳脱掉了（？）。把这两个程序拖进IDA后，导入表看不到太多函数，一开始我还以为是我脱壳失败，后来才发现是通过<code>GetProcAddress</code>动态获取需要用的函数。比如像这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">*EnumProcesses = GetProcAddress_0(v4, aEnumprocesses);</span><br><span class="line">*EnumProcessModules = GetProcAddress_0(v4, aEnumprocessmod);</span><br><span class="line">*GetModuleFileNameExA = GetProcAddress_0(v4, aGetmodulefilen_1);</span><br><span class="line">*GetModuleFileNameExW = GetProcAddress_0(v4, aGetmodulefilen_2);</span><br><span class="line">*GetModuleInformation = GetProcAddress_0(v4, aGetmoduleinfor);</span><br><span class="line">*GetModuleBaseNameA = GetProcAddress_0(v4, aGetmodulebasen);</span><br></pre></td></tr></table></figure>
+<p>于是我只能每个变量慢慢的重命名过去。</p>
+<p>大致浏览过后，猜测<code>XTrap.xt</code>应该主要负责UI和其他工作，重头戏还是在<code>XTrapVa.dll</code>中（当然并不是说<code>XTrap.xt</code>没什么用，我感觉里面应该也有一部分操作，只是我没仔细研究过）。当我开始浏览<code>XTrapVa.dll</code>后，我崩溃了，到处都是神奇的函数调用，放一些代码让大家感受一下。</p>
+<p>比如虚函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int __thiscall sub_40796B60(int (__thiscall ***this)(_DWORD))</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> (*<span class="keyword">this</span>[<span class="number">295</span>])(<span class="keyword">this</span> + <span class="number">295</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者加密调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> __<span class="function">thiscall <span class="title">sub_404225B0</span><span class="params">(_DWORD *<span class="keyword">this</span>, <span class="keyword">int</span> a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  sub_4041D280(<span class="keyword">this</span> + <span class="number">442</span>, (<span class="keyword">this</span> + <span class="number">441</span>), &amp;a2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> __<span class="function">thiscall <span class="title">sub_4041D280</span><span class="params">(_DWORD *<span class="keyword">this</span>, <span class="keyword">unsigned</span> <span class="keyword">int</span> a2, <span class="keyword">unsigned</span> <span class="keyword">int</span> *a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  _DWORD *v3; <span class="comment">// ebx</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v4; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v5; <span class="comment">// ebp</span></span><br><span class="line">  <span class="keyword">char</span> v6; <span class="comment">// dl</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v7; <span class="comment">// ecx</span></span><br><span class="line">  <span class="keyword">int</span> *v8; <span class="comment">// edi</span></span><br><span class="line">  <span class="keyword">int</span> v9; <span class="comment">// ebp</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v10; <span class="comment">// esi</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v11; <span class="comment">// [esp+4h] [ebp-28h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v12; <span class="comment">// [esp+8h] [ebp-24h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v13; <span class="comment">// [esp+Ch] [ebp-20h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v14; <span class="comment">// [esp+10h] [ebp-1Ch]</span></span><br><span class="line">  <span class="keyword">char</span> v15; <span class="comment">// [esp+14h] [ebp-18h]</span></span><br><span class="line">  <span class="keyword">int</span> v16; <span class="comment">// [esp+18h] [ebp-14h]</span></span><br><span class="line">  <span class="keyword">int</span> v17; <span class="comment">// [esp+1Ch] [ebp-10h]</span></span><br><span class="line">  <span class="keyword">char</span> v18; <span class="comment">// [esp+20h] [ebp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v19; <span class="comment">// [esp+24h] [ebp-8h]</span></span><br><span class="line">  <span class="keyword">int</span> v20; <span class="comment">// [esp+28h] [ebp-4h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v21; <span class="comment">// [esp+30h] [ebp+4h]</span></span><br><span class="line"></span><br><span class="line">  v3 = <span class="keyword">this</span>;</span><br><span class="line">  v20 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> ( <span class="keyword">this</span>[<span class="number">4</span>] &amp; <span class="number">0xFFFFFFFC</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    v4 = a2;</span><br><span class="line">    v5 = a2;</span><br><span class="line">    v11 = (a2 &gt;&gt; <span class="number">6</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v6 = a2 &amp; <span class="number">7</span>;</span><br><span class="line">    v12 = (a2 &gt;&gt; <span class="number">9</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v13 = (a2 &gt;&gt; <span class="number">12</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v14 = (a2 &gt;&gt; <span class="number">15</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v7 = (a2 &gt;&gt; <span class="number">18</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v21 = a2 &amp; <span class="number">7</span>;</span><br><span class="line">    v15 = v7;</span><br><span class="line">    v8 = <span class="number">2</span>;</span><br><span class="line">    v16 = (v4 &gt;&gt; <span class="number">21</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v17 = (v4 &gt;&gt; <span class="number">24</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v9 = (v5 &gt;&gt; <span class="number">3</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    v19 = v4 &gt;&gt; <span class="number">30</span>;</span><br><span class="line">    v18 = (v4 &gt;&gt; <span class="number">27</span>) &amp; <span class="number">7</span>;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v10 = *a3;</span><br><span class="line">      sub_4041D210(v3, (v8 - <span class="number">2</span>), *a3 &amp; <span class="number">1</span>, v6);</span><br><span class="line">      sub_4041D210(v3, (v8 - <span class="number">1</span>), (v10 &gt;&gt; <span class="number">1</span>) &amp; <span class="number">1</span>, v21);</span><br><span class="line">      sub_4041D210(v3, v8, (v10 &gt;&gt; <span class="number">2</span>) &amp; <span class="number">1</span>, v21);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">1</span>), (v10 &gt;&gt; <span class="number">3</span>) &amp; <span class="number">1</span>, v9);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">2</span>), (v10 &gt;&gt; <span class="number">4</span>) &amp; <span class="number">1</span>, v9);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">3</span>), (v10 &gt;&gt; <span class="number">5</span>) &amp; <span class="number">1</span>, v9);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">1</span>, (v10 &gt;&gt; <span class="number">6</span>) &amp; <span class="number">1</span>, v11);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">5</span>), (v10 &gt;&gt; <span class="number">7</span>) &amp; <span class="number">1</span>, v11);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">6</span>), v10 &gt;&gt; <span class="number">8</span>, v11);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">7</span>), (v10 &gt;&gt; <span class="number">9</span>) &amp; <span class="number">1</span>, v12);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">2</span>, (v10 &gt;&gt; <span class="number">10</span>) &amp; <span class="number">1</span>, v12);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">9</span>), (v10 &gt;&gt; <span class="number">11</span>) &amp; <span class="number">1</span>, v12);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">10</span>), (v10 &gt;&gt; <span class="number">12</span>) &amp; <span class="number">1</span>, v13);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">11</span>), (v10 &gt;&gt; <span class="number">13</span>) &amp; <span class="number">1</span>, v13);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">3</span>, (v10 &gt;&gt; <span class="number">14</span>) &amp; <span class="number">1</span>, v13);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">13</span>), (v10 &gt;&gt; <span class="number">15</span>) &amp; <span class="number">1</span>, v14);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">14</span>), v10 &gt;&gt; <span class="number">16</span>, v14);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">15</span>), (v10 &gt;&gt; <span class="number">17</span>) &amp; <span class="number">1</span>, v14);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">4</span>, (v10 &gt;&gt; <span class="number">18</span>) &amp; <span class="number">1</span>, v15);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">17</span>), (v10 &gt;&gt; <span class="number">19</span>) &amp; <span class="number">1</span>, v15);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">18</span>), (v10 &gt;&gt; <span class="number">20</span>) &amp; <span class="number">1</span>, v15);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">19</span>), (v10 &gt;&gt; <span class="number">21</span>) &amp; <span class="number">1</span>, v16);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">5</span>, (v10 &gt;&gt; <span class="number">22</span>) &amp; <span class="number">1</span>, v16);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">21</span>), (v10 &gt;&gt; <span class="number">23</span>) &amp; <span class="number">1</span>, v16);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">22</span>), HIBYTE(v10) &amp; <span class="number">1</span>, v17);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">23</span>), (v10 &gt;&gt; <span class="number">25</span>) &amp; <span class="number">1</span>, v17);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">6</span>, (v10 &gt;&gt; <span class="number">26</span>) &amp; <span class="number">1</span>, v17);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">25</span>), (v10 &gt;&gt; <span class="number">27</span>) &amp; <span class="number">1</span>, v18);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">26</span>), (v10 &gt;&gt; <span class="number">28</span>) &amp; <span class="number">1</span>, v18);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">27</span>), (v10 &gt;&gt; <span class="number">29</span>) &amp; <span class="number">1</span>, v18);</span><br><span class="line">      sub_4041D210(v3, v8 + <span class="number">7</span>, (v10 &gt;&gt; <span class="number">30</span>) &amp; <span class="number">1</span>, v19);</span><br><span class="line">      sub_4041D210(v3, (v8 + <span class="number">29</span>), (v10 &amp; <span class="number">0x80000000</span>) != <span class="number">0</span>, v19);</span><br><span class="line">      ++a3;</span><br><span class="line">      v8 += <span class="number">8</span>;</span><br><span class="line">      <span class="keyword">if</span> ( ++v20 &gt;= v3[<span class="number">4</span>] &gt;&gt; <span class="number">2</span> )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      v6 = v21;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> *__<span class="function">thiscall <span class="title">sub_4041D210</span><span class="params">(_DWORD *<span class="keyword">this</span>, <span class="keyword">int</span> *a2, <span class="keyword">char</span> a3, <span class="keyword">char</span> a4)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> *result; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">int</span> v5; <span class="comment">// esi</span></span><br><span class="line"></span><br><span class="line">  result = a2;</span><br><span class="line">  v5 = <span class="keyword">this</span>[<span class="number">1</span>];</span><br><span class="line">  *(a2 + v5) = a3 &lt;&lt; a4;</span><br><span class="line">  <span class="keyword">if</span> ( (a2 &amp; <span class="number">3</span>) == <span class="number">3</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    result = (v5 + <span class="number">4</span> * (a2 &gt;&gt; <span class="number">2</span>));</span><br><span class="line">    *result = <span class="keyword">this</span>[<span class="number">2</span>] ^ *(v5 + <span class="number">4</span> * (a2 &gt;&gt; <span class="number">2</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然恶心的东西还不止是这些。这么一看，只靠静态分析这条路确实是会让人崩溃的。于是我努力地靠着有限的动态调试和有限的静态分析以及自杀式的尝试得出了一些结果，当然得出的这些结果并不一定准确。</p>
+<h2 id="窗口检测"><a href="#窗口检测" class="headerlink" title="窗口检测"></a>窗口检测</h2><p>使用了<code>EnumWindow</code>，并且可能调用<code>GetWindowLong</code>获取了以下属性：</p>
+<ul>
+<li>GWL_HINSTANCE</li>
+<li>GWL_HWNDPARENT</li>
+<li>GWL_WNDPROC</li>
+<li>GWL_STYLE</li>
+</ul>
+<p>还调用了<code>GetClassName</code>获取了类名。</p>
+<h2 id="创建快照"><a href="#创建快照" class="headerlink" title="创建快照"></a>创建快照</h2><p>调用了<code>CreateToolhelp32Snapshot</code>，参数为<code>TH32CS_SNAPMODULE</code>和<code>TH32CS_SNAPPROCESS</code>，即遍历了自身模块和进程。至于干了什么，我觉得需要靠完整的动态调试才能略窥一二。</p>
+<h2 id="x64代码调用"><a href="#x64代码调用" class="headerlink" title="x64代码调用"></a>x64代码调用</h2><p>在有限的动态调试过程中，我发现了一个很有趣的函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">___:40D224D0 55                                                  push    ebp</span><br><span class="line">___:40D224D1 8B EC                                               mov     ebp, esp</span><br><span class="line">___:40D224D3 83 EC 20                                            sub     esp, 20h</span><br><span class="line">___:40D224D6 8B 45 08                                            mov     eax, [ebp+8]</span><br><span class="line">___:40D224D9 8B 4D 0C                                            mov     ecx, [ebp+arg_0]</span><br><span class="line">___:40D224DC 8B 55 10                                            mov     edx, [ebp+arg_4]</span><br><span class="line">___:40D224DF 89 45 F8                                            mov     [ebp+var_8], eax ; ssdt index</span><br><span class="line">___:40D224E2 8B 45 14                                            mov     eax, [ebp+arg_8]</span><br><span class="line">___:40D224E5 89 4D FC                                            mov     [ebp+var_4], ecx</span><br><span class="line">___:40D224E8 8B 4D 18                                            mov     ecx, [ebp+arg_C]</span><br><span class="line">___:40D224EB 89 55 E0                                            mov     [ebp+var_20], edx ; para1</span><br><span class="line">___:40D224EE 8B 55 1C                                            mov     edx, [ebp+arg_10]</span><br><span class="line">___:40D224F1 89 45 E4                                            mov     [ebp+var_1C], eax</span><br><span class="line">___:40D224F4 8B 45 20                                            mov     eax, [ebp+arg_14]</span><br><span class="line">___:40D224F7 89 4D E8                                            mov     [ebp+var_18], ecx ; para2</span><br><span class="line">___:40D224FA 8B 4D 24                                            mov     ecx, [ebp+arg_18]</span><br><span class="line">___:40D224FD 89 55 EC                                            mov     [ebp+var_14], edx</span><br><span class="line">___:40D22500 8B 55 28                                            mov     edx, [ebp+arg_1C]</span><br><span class="line">___:40D22503 89 45 F0                                            mov     [ebp+var_10], eax ; para3</span><br><span class="line">___:40D22506 8B 45 2C                                            mov     eax, [ebp+arg_20]</span><br><span class="line">___:40D22509 89 4D F4                                            mov     [ebp+var_C], ecx</span><br><span class="line">___:40D2250C 8B 4D 30                                            mov     ecx, [ebp+arg_24]</span><br><span class="line">___:40D2250F 89 55 20                                            mov     [ebp+arg_14], edx ; para4</span><br><span class="line">___:40D22512 8B 55 34                                            mov     edx, [ebp+arg_28]</span><br><span class="line">___:40D22515 89 45 24                                            mov     [ebp+arg_18], eax</span><br><span class="line">___:40D22518 8B 45 38                                            mov     eax, [ebp+arg_2C]</span><br><span class="line">___:40D2251B 89 4D 10                                            mov     [ebp+arg_4], ecx ; para5</span><br><span class="line">___:40D2251E 8B 4D 3C                                            mov     ecx, [ebp+arg_30]</span><br><span class="line">___:40D22521 89 55 14                                            mov     [ebp+arg_8], edx</span><br><span class="line">___:40D22524 89 45 18                                            mov     [ebp+arg_C], eax ; para6</span><br><span class="line">___:40D22527 89 4D 1C                                            mov     [ebp+arg_10], ecx</span><br><span class="line">___:40D2252A C7 45 0C 00 00 00 00                                mov     [ebp+arg_0], 0</span><br><span class="line">___:40D22531 89 65 0C                                            mov     [ebp+arg_0], esp</span><br><span class="line">___:40D22534 83 E4 F8                                            and     esp, 0FFFFFFF8h</span><br><span class="line">___:40D22537 6A 33                                               push    33h</span><br><span class="line">___:40D22539 E8 00 00 00 00                                      call    $+5</span><br><span class="line">___:40D2253E 83 04 24 05                                         add     [esp+28h+var_28], 5</span><br><span class="line">___:40D22542 CB                                                  retf</span><br><span class="line">___:40D22542                                     x64syscall      endp ; sp-analysis failed</span><br><span class="line">___:40D22542</span><br><span class="line">___:40D22543                                     ; ---------------------------------------------------------------------------</span><br><span class="line">___:40D22543 48                                                  dec     eax             ; mov rcx, qword ptr ss:[rbp-0x20]</span><br><span class="line">___:40D22543                                                                             ; mov rdx, qword ptr ss:[rbp-0x18]</span><br><span class="line">___:40D22543                                                                             ; push qword ptr ss:[rbp-0x10]</span><br><span class="line">___:40D22543                                                                             ; pop r8</span><br><span class="line">___:40D22543                                                                             ; push qword ptr ss:[rbp+0x20]</span><br><span class="line">___:40D22543                                                                             ; pop r9</span><br><span class="line">___:40D22543                                                                             ; push qword ptr ss:[rbp+0x18]</span><br><span class="line">___:40D22543                                                                             ; push qword ptr ss:[rbp+0x10]</span><br><span class="line">___:40D22543                                                                             ; sub rsp, 0x28</span><br><span class="line">___:40D22543                                                                             ; mov rax, qword ptr ss:[rbp-0x08]</span><br><span class="line">___:40D22543                                                                             ; mov r10, rcx</span><br><span class="line">___:40D22543                                                                             ; syscall</span><br><span class="line">___:40D22543                                                                             ; add rsp, 0x38</span><br><span class="line">___:40D22543                                                                             ; mov qword ptr ss:[rbp-0x08], rax</span><br><span class="line">___:40D22543                                                                             ; call 0x0000000000000032</span><br><span class="line">___:40D22543                                                                             ; mov dword ptr ss:[rsp+0x04], 0x23</span><br><span class="line">___:40D22543                                                                             ; add dword ptr ss:[rsp], 0x0D</span><br><span class="line">___:40D22543                                                                             ; ret far</span><br><span class="line">___:40D22544 8B 4D E0                                            mov     ecx, [ebp-20h]</span><br><span class="line">___:40D22547 48                                                  dec     eax</span><br><span class="line">___:40D22548 8B 55 E8                                            mov     edx, [ebp-18h]</span><br><span class="line">___:40D2254B FF 75 F0                                            push    dword ptr [ebp-10h]</span><br><span class="line">___:40D2254E 49                                                  dec     ecx</span><br><span class="line">___:40D2254F 58                                                  pop     eax</span><br><span class="line">___:40D22550 FF 75 20                                            push    dword ptr [ebp+20h]</span><br><span class="line">___:40D22553 49                                                  dec     ecx</span><br><span class="line">___:40D22554 59                                                  pop     ecx</span><br><span class="line">___:40D22555 FF 75 18                                            push    dword ptr [ebp+18h]</span><br><span class="line">___:40D22558 FF 75 10                                            push    dword ptr [ebp+10h]</span><br><span class="line">___:40D2255B 48                                                  dec     eax</span><br><span class="line">___:40D2255C 83 EC 28                                            sub     esp, 28h</span><br><span class="line">___:40D2255F 48                                                  dec     eax</span><br><span class="line">___:40D22560 8B 45 F8                                            mov     eax, [ebp-8]</span><br><span class="line">___:40D22563 4C                                                  dec     esp</span><br><span class="line">___:40D22564 8B D1                                               mov     edx, ecx</span><br><span class="line">___:40D22566 0F 05                                               syscall                 ; Low latency system call</span><br><span class="line">___:40D22568 48                                                  dec     eax</span><br><span class="line">___:40D22569 83 C4 38                                            add     esp, 38h</span><br><span class="line">___:40D2256C 48                                                  dec     eax</span><br><span class="line">___:40D2256D 89 45 F8                                            mov     [ebp-8], eax</span><br><span class="line">___:40D22570 E8 00 00 00 00                                      call    $+5</span><br><span class="line">___:40D22575 C7 44 24 04 23 00 00 00                             mov     dword ptr [esp+4], 23h</span><br><span class="line">___:40D2257D 83 04 24 0D                                         add     dword ptr [esp], 0Dh</span><br><span class="line">___:40D22581 CB                                                  retf</span><br></pre></td></tr></table></figure>
+<p>很经典的一段32位调用64位代码，通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">___:40D22537 6A 33                                               push    33h</span><br><span class="line">___:40D22539 E8 00 00 00 00                                      call    $+5</span><br><span class="line">___:40D2253E 83 04 24 05                                         add     [esp+28h+var_28], 5</span><br><span class="line">___:40D22542 CB                                                  retf</span><br></pre></td></tr></table></figure>
+<p>这段代码，改变了段寄存器<code>cs</code>，进入了x64代码模式。因为ida32没办法看x64代码，于是我用注释将x64代码补了上去。从代码中可以看到调用了<code>syscall</code>，所以整个函数其实就是一个利用<code>syscall</code>调用Nt函数的封装。该函数的格式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NTSTATUS</span><br><span class="line">NTAPI</span><br><span class="line">x64syscall(ULONG64 Index, ULONG64 Para1, ULONG64 Para2, ULONG64 Para3, ULONG64 Para4, ULONG64 Para5, ULONG64 Para6);</span><br></pre></td></tr></table></figure>
+<p>第一个参数为要调用的Nt函数的Index，其余参数就为该Nt函数的参数。通过搜索特征码，我得知在<code>XTrapVa.dll</code>中一共有<strong>两个函数</strong>实现了类似的效果，即利用<code>syscall</code>调用Nt函数。并通过测试发现，<code>XTrap</code>使用该函数调用过以下几个Nt函数（可能不全）：</p>
+<ul>
+<li>NtQueryInformationProcess</li>
+<li>NtTerminateProcess</li>
+<li>NtReadVirtualMemory</li>
+</ul>
+<p>至于干了什么，任凭各位想象。</p>
+<h2 id="应用层总结"><a href="#应用层总结" class="headerlink" title="应用层总结"></a>应用层总结</h2><p>虽然应用层没有vm也没有混淆之类的东西，但它还是用了一些神奇的操作阻挡了我的静态分析（毕竟我太菜了）。当然肯定不只干了我讲的这些，还有内存扫描、线程检测等等，然而精力和技术的双重限制让我只能讲到这了。</p>
+<h1 id="Bypass"><a href="#Bypass" class="headerlink" title="Bypass"></a>Bypass</h1><p>虽然没有能够完全透烂这个保护，但是Bypass的话我还是能提供一点思路的。首先需要准备一个dll，该dll需要实现的功能如下：</p>
+<ul>
+<li>结束<code>XTrapVa.dll</code>的所有线程</li>
+<li>结束<code>XTrap.xt</code>进程</li>
+<li>Hook<code>NtTerminateProcess</code>和<code>x64syscall</code></li>
+</ul>
+<p>结束进程和线程的部分：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">KillThread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hSnap;</span><br><span class="line">	THREADENTRY32 te32;</span><br><span class="line">	HANDLE hThread;</span><br><span class="line">	MODULEINFO mi;</span><br><span class="line">	ULONG DllBase;</span><br><span class="line">	ULONG DllSize;</span><br><span class="line">	DWORD RetLen;</span><br><span class="line">	ULONG StartAddress;</span><br><span class="line">	<span class="keyword">decltype</span>(NtQueryInformationThread)* pfnNtQueryInformationThread;</span><br><span class="line"></span><br><span class="line">	GetModuleInformation(GetCurrentProcess(), GetModuleHandle(_T(<span class="string">"XTrapVa.dll"</span>)), &amp;mi, <span class="keyword">sizeof</span>(MODULEINFO));</span><br><span class="line">	DllBase = (ULONG)mi.lpBaseOfDll;</span><br><span class="line">	DllSize = mi.SizeOfImage;</span><br><span class="line">	pfnNtQueryInformationThread = (<span class="keyword">decltype</span>(NtQueryInformationThread)*)GetProcAddress(GetModuleHandle(_T(<span class="string">"ntdll.dll"</span>)), <span class="string">"NtQueryInformationThread"</span>);</span><br><span class="line"></span><br><span class="line">	hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (hSnap == INVALID_HANDLE_VALUE)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	te32.dwSize = <span class="keyword">sizeof</span>(THREADENTRY32);</span><br><span class="line">	<span class="keyword">if</span> (!Thread32First(hSnap, &amp;te32))</span><br><span class="line">	&#123;</span><br><span class="line">		CloseHandle(hSnap);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (te32.th32OwnerProcessID == GetCurrentProcessId())</span><br><span class="line">		&#123;</span><br><span class="line">			hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, te32.th32ThreadID);</span><br><span class="line">			pfnNtQueryInformationThread(hThread, ThreadQuerySetWin32StartAddress, &amp;StartAddress, <span class="keyword">sizeof</span>(StartAddress), &amp;RetLen);</span><br><span class="line">			<span class="keyword">if</span> (StartAddress &gt; DllBase &amp;&amp; StartAddress &lt; DllBase + DllSize)</span><br><span class="line">			&#123;</span><br><span class="line">				TerminateThread(hThread, <span class="number">0</span>);</span><br><span class="line">			&#125;</span><br><span class="line">			CloseHandle(hThread);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125; <span class="keyword">while</span> (Thread32Next(hSnap, &amp;te32));</span><br><span class="line"></span><br><span class="line">	CloseHandle(hSnap);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">VOID <span class="title">KillProcess</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	PROCESSENTRY32 pe32;</span><br><span class="line">	HANDLE hSnap;</span><br><span class="line">	HANDLE hProcess;</span><br><span class="line"></span><br><span class="line">	hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (hSnap == INVALID_HANDLE_VALUE)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pe32.dwSize = <span class="keyword">sizeof</span>(PROCESSENTRY32);</span><br><span class="line">	<span class="keyword">if</span> (!Process32First(hSnap, &amp;pe32))</span><br><span class="line">	&#123;</span><br><span class="line">		CloseHandle(hSnap);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (!_tcsicmp(pe32.szExeFile, _T(<span class="string">"XTrap.xt"</span>)))</span><br><span class="line">		&#123;</span><br><span class="line">			hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);</span><br><span class="line">			TerminateProcess(hProcess, <span class="number">0</span>);</span><br><span class="line">			CloseHandle(hProcess);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">while</span> (Process32Next(hSnap, &amp;pe32));</span><br><span class="line"></span><br><span class="line">	CloseHandle(hSnap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Hook部分：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">NTSTATUS</span><br><span class="line">NTAPI</span><br><span class="line">MyNtTerminateProcess(</span><br><span class="line">	_In_opt_ HANDLE ProcessHandle,</span><br><span class="line">	_In_ NTSTATUS ExitStatus</span><br><span class="line">)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> STATUS_SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">NTSTATUS</span><br><span class="line">NTAPI</span><br><span class="line">Myx64syscall(ULONG64 Index, ULONG64 Para1, ULONG64 Para2, ULONG64 Para3, ULONG64 Para4, ULONG64 Para5, ULONG64 Para6)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">switch</span> (Index)</span><br><span class="line">	&#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">0x2c</span>:	<span class="comment">//NtTerminateProcess 这里根据系统自己改</span></span><br><span class="line">		<span class="keyword">return</span> STATUS_SUCCESS;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> pfnx64syscall(Index, Para1, Para2, Para3, Para4, Para5, Para6);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>准备好dll之后用任意注入方式注入游戏进程即可，只需要注意一点就是注入一定要快。</p>
+<p>当我注入后发现我可以使用CE正常附加和调试了（VEH），于是我兴冲冲的准备使用动态调试进行深入分析，然后我发现。。。</p>
+<p>有关检测的线程都被我干掉了，我还调试个鸡儿。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/04/intel-VT笔记/" rel="next" title="intel VT笔记">
+                <i class="fa fa-chevron-left"></i> intel VT笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/10/2019腾讯游戏安全竞赛PC分析/" rel="prev" title="2019腾讯游戏安全竞赛PC分析">
+                2019腾讯游戏安全竞赛PC分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#驱动层"><span class="nav-number">1.</span> <span class="nav-text">驱动层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DriverEntry"><span class="nav-number">1.1.</span> <span class="nav-text">DriverEntry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#派遣函数"><span class="nav-number">1.2.</span> <span class="nav-text">派遣函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DispatchCreate"><span class="nav-number">1.2.1.</span> <span class="nav-text">DispatchCreate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DispatchClose"><span class="nav-number">1.2.2.</span> <span class="nav-text">DispatchClose</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DispatchIoControl"><span class="nav-number">1.2.3.</span> <span class="nav-text">DispatchIoControl</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#控制码0x86000880"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">控制码0x86000880</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#控制码0x86001804"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">控制码0x86001804</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他控制码"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">其他控制码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#驱动层总结"><span class="nav-number">1.3.</span> <span class="nav-text">驱动层总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用层"><span class="nav-number">2.</span> <span class="nav-text">应用层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#窗口检测"><span class="nav-number">2.1.</span> <span class="nav-text">窗口检测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建快照"><span class="nav-number">2.2.</span> <span class="nav-text">创建快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#x64代码调用"><span class="nav-number">2.3.</span> <span class="nav-text">x64代码调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用层总结"><span class="nav-number">2.4.</span> <span class="nav-text">应用层总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bypass"><span class="nav-number">3.</span> <span class="nav-text">Bypass</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

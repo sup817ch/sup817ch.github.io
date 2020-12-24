@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Paging32-Bit Paging启用条件：CR0.PG = 1 and CR4.PAE = 0. 寻址范围：40-bit physical addresses, linear addresses are limited to 32 bits.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存分页笔记">
+<meta property="og:url" content="http://sup817ch.github.io/2020/05/05/内存分页笔记/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="Paging32-Bit Paging启用条件：CR0.PG = 1 and CR4.PAE = 0. 寻址范围：40-bit physical addresses, linear addresses are limited to 32 bits.">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://tva2.sinaimg.cn/large/006juYZNgy1gbfrqm6azsj30kz0nadgy.jpg">
+<meta property="og:image" content="http://tvax4.sinaimg.cn/large/006juYZNgy1gbfrrg7amwj30ru0g10up.jpg">
+<meta property="og:image" content="http://tva4.sinaimg.cn/large/006juYZNgy1gbfszlhcobj30lb0cmmxr.jpg">
+<meta property="og:image" content="http://tva2.sinaimg.cn/large/006juYZNgy1gbfszui47vj30kp0afjrv.jpg">
+<meta property="og:image" content="http://tva3.sinaimg.cn/large/006juYZNgy1gbft01wtuaj30rw0hsq4t.jpg">
+<meta property="og:image" content="http://tva3.sinaimg.cn/large/006juYZNgy1gbft4xpq47j30ky0fywf9.jpg">
+<meta property="og:image" content="http://tva4.sinaimg.cn/large/006juYZNgy1gbft59z2glj30kx0fl0tf.jpg">
+<meta property="og:image" content="http://tva3.sinaimg.cn/large/006juYZNgy1gbft5i0ndij30kn0fldge.jpg">
+<meta property="og:image" content="http://tva2.sinaimg.cn/large/006juYZNgy1gbft5n1679j30rz0n40vk.jpg">
+<meta property="og:updated_time" content="2020-12-24T02:28:41.593Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内存分页笔记">
+<meta name="twitter:description" content="Paging32-Bit Paging启用条件：CR0.PG = 1 and CR4.PAE = 0. 寻址范围：40-bit physical addresses, linear addresses are limited to 32 bits.">
+<meta name="twitter:image" content="http://tva2.sinaimg.cn/large/006juYZNgy1gbfrqm6azsj30kz0nadgy.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2020/05/05/内存分页笔记/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>内存分页笔记 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/05/05/内存分页笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">内存分页笔记
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-05 10:00:00" itemprop="dateCreated datePublished" datetime="2020-05-05T10:00:00+08:00">2020-05-05</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-24 10:28:41" itemprop="dateModified" datetime="2020-12-24T10:28:41+08:00">2020-12-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Paging"><a href="#Paging" class="headerlink" title="Paging"></a>Paging</h1><h2 id="32-Bit-Paging"><a href="#32-Bit-Paging" class="headerlink" title="32-Bit Paging"></a>32-Bit Paging</h2><p>启用条件：CR0.PG = 1 and CR4.PAE = 0.</p>
+<p>寻址范围：40-bit physical addresses, linear addresses are limited to 32 bits.</p>
+<a id="more"></a>
+<p>寻址方式：</p>
+<p><img src="http://tva2.sinaimg.cn/large/006juYZNgy1gbfrqm6azsj30kz0nadgy.jpg" alt="32bit"></p>
+<p><img src="http://tvax4.sinaimg.cn/large/006juYZNgy1gbfrrg7amwj30ru0g10up.jpg" alt="32bit2"></p>
+<h2 id="PAE-Paging"><a href="#PAE-Paging" class="headerlink" title="PAE Paging"></a>PAE Paging</h2><p>启用条件：CR0.PG = 1, CR4.PAE = 1, and IA32_EFER.LME = 0.</p>
+<p>寻址范围：52-bit physical addresses, linear addresses are limited to 32 bits.</p>
+<p>寻址方式：</p>
+<p><img src="http://tva4.sinaimg.cn/large/006juYZNgy1gbfszlhcobj30lb0cmmxr.jpg" alt="PAE"></p>
+<p><img src="http://tva2.sinaimg.cn/large/006juYZNgy1gbfszui47vj30kp0afjrv.jpg" alt="PAE2"></p>
+<p><img src="http://tva3.sinaimg.cn/large/006juYZNgy1gbft01wtuaj30rw0hsq4t.jpg" alt="PAE3"></p>
+<h2 id="4-Level-Paging"><a href="#4-Level-Paging" class="headerlink" title="4-Level Paging"></a>4-Level Paging</h2><p>启用条件：CR0.PG = 1, CR4.PAE = 1, and IA32_EFER.LME = 1.</p>
+<p>寻址范围：52-bit physical addresses, linear addresses are limited to 48 bits.</p>
+<p>寻址方式：</p>
+<p><img src="http://tva3.sinaimg.cn/large/006juYZNgy1gbft4xpq47j30ky0fywf9.jpg" alt="4level"></p>
+<p><img src="http://tva4.sinaimg.cn/large/006juYZNgy1gbft59z2glj30kx0fl0tf.jpg" alt="4level2"></p>
+<p><img src="http://tva3.sinaimg.cn/large/006juYZNgy1gbft5i0ndij30kn0fldge.jpg" alt="4level3"></p>
+<p><img src="http://tva2.sinaimg.cn/large/006juYZNgy1gbft5n1679j30rz0n40vk.jpg" alt="4level4"></p>
+<p>其中，某些entry的bit7决定页面大小，PTE的bit9与copy-on-write技术有关。</p>
+<h2 id="代码测试（以x64-4-Level-Paging为例）"><a href="#代码测试（以x64-4-Level-Paging为例）" class="headerlink" title="代码测试（以x64 4-Level Paging为例）"></a>代码测试（以x64 4-Level Paging为例）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPml4Base(cr3) ((ULONG64)(cr3) &amp; 0xFFFFFFFFF000)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPdptBase(pml4e) ((ULONG64)(pml4e) &amp; 0xFFFFFFFFF000)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPdBase(pdpte) ((ULONG64)(pdpte) &amp; 0xFFFFFFFFF000)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPtBase(pde) ((ULONG64)(pde) &amp; 0xFFFFFFFFF000)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPageBase(pte) ((ULONG64)(pte) &amp; 0xFFFFFFFFF000)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPml4eIndex(va) ((((ULONG64)(va)) &gt;&gt; 39) &amp; 0x1FF)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPdpteIndex(va) ((((ULONG64)(va)) &gt;&gt; 30) &amp; 0x1FF)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPdeIndex(va) ((((ULONG64)(va)) &gt;&gt; 21) &amp; 0x1FF)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPteIndex(va) ((((ULONG64)(va)) &gt;&gt; 12) &amp; 0x1FF)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPageOffset(va) ((ULONG64)(va) &amp; 0xFFF)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPml4eAddress(pml4base, index) ((ULONG64)(pml4base) + ((index) &lt;&lt; 3))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPdpteAddress(pdptbase, index) ((ULONG64)(pdptbase) + ((index) &lt;&lt; 3))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPdeAddress(pdebase, index) ((ULONG64)(pdebase) + ((index) &lt;&lt; 3))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPteAddress(ptebase, index) ((ULONG64)(ptebase) + ((index) &lt;&lt; 3))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetPhysicalAddress(pte, offset) ((ULONG64)(pte) + offset)</span></span><br><span class="line"></span><br><span class="line"><span class="function">BOOLEAN <span class="title">ReadPhysicalAddress</span><span class="params">(ULONG64 addr, SIZE_T len, PVOID buf)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	PHYSICAL_ADDRESS pa;</span><br><span class="line">	PVOID MapAddr;</span><br><span class="line"></span><br><span class="line">	pa.QuadPart = addr;</span><br><span class="line">	MapAddr = MmMapIoSpace(pa, len, MmCached);</span><br><span class="line">	<span class="keyword">if</span> (MapAddr != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">memcpy</span>(buf, MapAddr, len);</span><br><span class="line">		MmUnmapIoSpace(MapAddr, len);</span><br><span class="line">		<span class="keyword">return</span> TRUE;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> FALSE;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ULONG64 <span class="title">MyVtop</span><span class="params">(ULONG64 cr3, ULONG64 va)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	ULONG64 Pml4eAddr, PdpteAddr, PdeAddr, PteAddr;</span><br><span class="line">	ULONG64 pml4e, pdpte, pde, pte;</span><br><span class="line">	ULONG64 pa;</span><br><span class="line"></span><br><span class="line">	Pml4eAddr = GetPml4eAddress(GetPml4Base(cr3), GetPml4eIndex(va));</span><br><span class="line">	KdPrint((<span class="string">"Pml4eAddr:%p\n"</span>, Pml4eAddr));</span><br><span class="line">	<span class="keyword">if</span> (ReadPhysicalAddress(Pml4eAddr, <span class="keyword">sizeof</span>(pml4e), &amp;pml4e))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (((PHARDWARE_PTEX64)&amp;pml4e)-&gt;valid == <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			KdPrint((<span class="string">"pml4e is not valid, va:%p, pml4e:%p\n"</span>, va, pml4e));</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		KdPrint((<span class="string">"read pml4e failed, va:%p\n"</span>, va));</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	PdpteAddr = GetPdpteAddress(GetPdptBase(pml4e), GetPdpteIndex(va));</span><br><span class="line">	KdPrint((<span class="string">"PdpteAddr:%p\n"</span>, PdpteAddr));</span><br><span class="line">	<span class="keyword">if</span> (ReadPhysicalAddress(PdpteAddr, <span class="keyword">sizeof</span>(pdpte), &amp;pdpte))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (((PHARDWARE_PTEX64)&amp;pdpte)-&gt;valid == <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			KdPrint((<span class="string">"pdpte is not valid, va:%p, pdpte:%p\n"</span>, va, pdpte));</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		KdPrint((<span class="string">"read pdpte failed, va:%p\n"</span>, va));</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	PdeAddr = GetPdeAddress(GetPdBase(pdpte), GetPdeIndex(va));</span><br><span class="line">	KdPrint((<span class="string">"PdeAddr:%p\n"</span>, PdeAddr));</span><br><span class="line">	<span class="keyword">if</span> (ReadPhysicalAddress(PdeAddr, <span class="keyword">sizeof</span>(pde), &amp;pde))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (((PHARDWARE_PTEX64)&amp;pde)-&gt;valid == <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			KdPrint((<span class="string">"pde is not valid, va:%p pde:%p\n"</span>, va, pde));</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		KdPrint((<span class="string">"read pde failed, va:%p\n"</span>, va));</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	PteAddr = GetPteAddress(GetPtBase(pde), GetPdpteIndex(va));</span><br><span class="line">	KdPrint((<span class="string">"PteAddr:%p\n"</span>, PteAddr));</span><br><span class="line">	<span class="keyword">if</span> (ReadPhysicalAddress(PteAddr, <span class="keyword">sizeof</span>(pte), &amp;pte))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (((PHARDWARE_PTEX64)&amp;pte)-&gt;valid == <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			KdPrint((<span class="string">"pte is not valid, va:%p pte:%p\n"</span>, va, pte));</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		KdPrint((<span class="string">"read pte failed, va:%p\n"</span>, va));</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pa = GetPhysicalAddress(GetPageBase(pte), GetPageOffset(va));</span><br><span class="line">	<span class="keyword">return</span> pa;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Windows页表自映射"><a href="#Windows页表自映射" class="headerlink" title="Windows页表自映射"></a>Windows页表自映射</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Windows为了方便自己管理内存于是采用了页表自映射（Self-mapping page tables）的方法以便于用VA操作。</p>
+<p>以Win7 x64 7601为例子</p>
+<p>已知定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> VIRTUAL_ADDRESS_BITS 48</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> VIRTUAL_ADDRESS_MASK ((((ULONG_PTR)1) &lt;&lt; VIRTUAL_ADDRESS_BITS) - 1)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PTI_SHIFT 12</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PTE_SHIFT 3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PTE_BASE          0xFFFFF68000000000UI64</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MiGetPteAddress(va) \</span></span><br><span class="line">    ((PMMPTE)(((((ULONG_PTR)(va) &amp; VIRTUAL_ADDRESS_MASK) &gt;&gt; PTI_SHIFT) &lt;&lt; PTE_SHIFT) + PTE_BASE))</span><br></pre></td></tr></table></figure>
+<p>利用windbg先转换0x400000</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop 0 0x400000</span><br><span class="line">Amd64VtoP: Virt 0000000000400000, pagedir 00000000bb8f7000</span><br><span class="line">Amd64VtoP: PML4E 00000000bb8f7000</span><br><span class="line">Amd64VtoP: PDPE 00000000ba746000</span><br><span class="line">Amd64VtoP: PDE 00000000bbec7010</span><br><span class="line">Amd64VtoP: PTE 00000000bb2c8000</span><br><span class="line">Amd64VtoP: Mapped phys 00000000bb656000</span><br><span class="line">Virtual address 400000 translates to physical address bb656000.</span><br></pre></td></tr></table></figure>
+<p>将0x400000根据<code>MiGetPteAddress</code>计算得到0xFFFFF68000002000，再次利用windbg转换</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop 0 0xFFFFF68000002000</span><br><span class="line">Amd64VtoP: Virt fffff68000002000, pagedir 00000000bb8f7000</span><br><span class="line">Amd64VtoP: PML4E 00000000bb8f7f68</span><br><span class="line">Amd64VtoP: PDPE 00000000bb8f7000</span><br><span class="line">Amd64VtoP: PDE 00000000ba746000</span><br><span class="line">Amd64VtoP: PTE 00000000bbec7010</span><br><span class="line">Amd64VtoP: Mapped phys 00000000bb2c8000</span><br><span class="line">Virtual address fffff68000002000 translates to physical address bb2c8000.</span><br></pre></td></tr></table></figure>
+<p>实际上就是根据这个特定的PTE_BASE计算出pml4中的某一项的索引并让这一项再指向pml4（或者应该反过来说通过特定的索引计算出PTE_BASE）。在这里这个索引等于0x1ED，将这个索引左移39位（va中pml4e索引的位置），并将bit63:48填充为1即可得到PTE_BASE=0xFFFFF68000000000。</p>
+<p>某种意义上来说就是让虚拟地址到物理地址的翻译过程中少了一次查表的过程。</p>
+<h2 id="PTE-BASE随机化"><a href="#PTE-BASE随机化" class="headerlink" title="PTE_BASE随机化"></a>PTE_BASE随机化</h2><p>从Win10 14316开始，PTE_BASE不再是WRK中给出的0xFFFFF68000000000，而是随机初始化的。</p>
+<p>引用大表哥hzqst逆向鹅厂定位PTE_BASE的例子。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> __<span class="function">fastcall <span class="title">InitializePteBase</span><span class="params">(<span class="keyword">char</span> a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> v1; <span class="comment">// bl</span></span><br><span class="line">  PHYSICAL_ADDRESS pml4t; <span class="comment">// rdi</span></span><br><span class="line">  __int64 *pml4t_va; <span class="comment">// r11</span></span><br><span class="line">  <span class="keyword">int</span> slot; <span class="comment">// edx</span></span><br><span class="line">  __int64 index; <span class="comment">// rcx</span></span><br><span class="line">  __int64 v6; <span class="comment">// r8</span></span><br><span class="line"> </span><br><span class="line">  v1 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> ( a1 )</span><br><span class="line">  &#123;</span><br><span class="line">    pml4t.QuadPart = __readcr3();</span><br><span class="line">    pml4t_va = (__int64 *)MmMapIoSpace(pml4t, <span class="number">0x1000</span>ui64, MmCached);</span><br><span class="line">    <span class="keyword">if</span> ( pml4t_va )</span><br><span class="line">    &#123;</span><br><span class="line">      slot = <span class="number">0</span>;</span><br><span class="line">      index = <span class="number">0</span>i64;</span><br><span class="line">      <span class="keyword">while</span> ( (pml4t_va[index] &amp; <span class="number">0xFFFFFFFFF000</span>i64) != pml4t.QuadPart )</span><br><span class="line">      &#123;</span><br><span class="line">        ++index;</span><br><span class="line">        ++slot;</span><br><span class="line">        <span class="keyword">if</span> ( index &gt;= <span class="number">512</span> )</span><br><span class="line">          <span class="keyword">goto</span> LABEL_8;</span><br><span class="line">      &#125;</span><br><span class="line">      v1 = <span class="number">1</span>;</span><br><span class="line">      v6 = (slot + <span class="number">0x1FFFE00</span>i64) &lt;&lt; <span class="number">39</span>;</span><br><span class="line">      g_pte_base = (slot + <span class="number">0x1FFFE00</span>i64) &lt;&lt; <span class="number">39</span>;</span><br><span class="line">      g_pxe_selfmapping_index = slot;</span><br><span class="line">      g_pde_base = v6 + ((__int64)slot &lt;&lt; <span class="number">30</span>);</span><br><span class="line">      g_ppe_base = v6 + ((__int64)slot &lt;&lt; <span class="number">30</span>) + ((__int64)slot &lt;&lt; <span class="number">21</span>);</span><br><span class="line">      g_pxe_base = (<span class="keyword">void</span> *)(g_ppe_base + ((__int64)slot &lt;&lt; <span class="number">12</span>));</span><br><span class="line">      g_pxe_end = (__int64)g_pxe_base + <span class="number">4096</span>;</span><br><span class="line">      g_pte_end = v6 + <span class="number">0x8000000000</span>i64;</span><br><span class="line">LABEL_8:</span><br><span class="line">      MmUnmapIoSpace(pml4t_va, <span class="number">0x1000</span>ui64);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    g_pxe_selfmapping_index = <span class="number">493</span>i64;</span><br><span class="line">    v1 = <span class="number">1</span>;</span><br><span class="line">    g_pte_base = <span class="number">0xFFFFF68000000000</span>i64;</span><br><span class="line">    g_pde_base = <span class="number">0xFFFFF6FB40000000</span>i64;</span><br><span class="line">    g_ppe_base = <span class="number">0xFFFFF6FB7DA00000</span>i64;</span><br><span class="line">    g_pxe_base = (<span class="keyword">void</span> *)<span class="number">0xFFFFF6FB7DBED000</span>i64;</span><br><span class="line">    g_pxe_end = <span class="number">0xFFFFF6FB7DBEE000</span>i64;</span><br><span class="line">    g_pte_end = <span class="number">0xFFFFF70000000000</span>i64;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> v1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码的意思就是在pml4中找到指向自己的那一项的索引，然后把这个索引左移39位再把bit63:48补上1就能得到PTE_BASE。而PDE_BASE就是把这个索引左移到VA中pdpte索引的位置再加上PTE_BASE就能得到，PPE_BASE、PXE_BASE同理，某种意义上相当于少了几次查表过程。</p>
+<p>注：win10 1803之后MmMapIoSpace不再允许映射页表相关的物理地址，因此只能用MmGetVirtualForPhysical代替，或者自己实现映射物理地址。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/10/2019腾讯游戏安全竞赛PC分析/" rel="next" title="2019腾讯游戏安全竞赛PC分析">
+                <i class="fa fa-chevron-left"></i> 2019腾讯游戏安全竞赛PC分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/06/WFP框架学习笔记/" rel="prev" title="WFP框架学习笔记">
+                WFP框架学习笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Paging"><span class="nav-number">1.</span> <span class="nav-text">Paging</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#32-Bit-Paging"><span class="nav-number">1.1.</span> <span class="nav-text">32-Bit Paging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PAE-Paging"><span class="nav-number">1.2.</span> <span class="nav-text">PAE Paging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Level-Paging"><span class="nav-number">1.3.</span> <span class="nav-text">4-Level Paging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码测试（以x64-4-Level-Paging为例）"><span class="nav-number">1.4.</span> <span class="nav-text">代码测试（以x64 4-Level Paging为例）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Windows页表自映射"><span class="nav-number">2.</span> <span class="nav-text">Windows页表自映射</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">2.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PTE-BASE随机化"><span class="nav-number">2.2.</span> <span class="nav-text">PTE_BASE随机化</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="检查是否支持VT检查CPU System software can determine whether a processor supports VMX operation using CPUID. IfCPUID.1:ECX.VMX[bit 5] = 1, then VMX operation is supported.  通过CPUID指令检查VMX位，为1则代表CPU支持VT。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="intel VT笔记">
+<meta property="og:url" content="http://sup817ch.github.io/2018/12/04/intel-VT笔记/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="检查是否支持VT检查CPU System software can determine whether a processor supports VMX operation using CPUID. IfCPUID.1:ECX.VMX[bit 5] = 1, then VMX operation is supported.  通过CPUID指令检查VMX位，为1则代表CPU支持VT。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-12-24T02:28:41.590Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="intel VT笔记">
+<meta name="twitter:description" content="检查是否支持VT检查CPU System software can determine whether a processor supports VMX operation using CPUID. IfCPUID.1:ECX.VMX[bit 5] = 1, then VMX operation is supported.  通过CPUID指令检查VMX位，为1则代表CPU支持VT。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2018/12/04/intel-VT笔记/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>intel VT笔记 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2018/12/04/intel-VT笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">intel VT笔记
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-12-04 22:59:51" itemprop="dateCreated datePublished" datetime="2018-12-04T22:59:51+08:00">2018-12-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-24 10:28:41" itemprop="dateModified" datetime="2020-12-24T10:28:41+08:00">2020-12-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="检查是否支持VT"><a href="#检查是否支持VT" class="headerlink" title="检查是否支持VT"></a>检查是否支持VT</h1><h2 id="检查CPU"><a href="#检查CPU" class="headerlink" title="检查CPU"></a>检查CPU</h2><blockquote>
+<p>System software can determine whether a processor supports VMX operation using CPUID. If<br>CPUID.1:ECX.VMX[bit 5] = 1, then VMX operation is supported.</p>
+</blockquote>
+<p>通过CPUID指令检查VMX位，为1则代表CPU支持VT。</p>
+<a id="more"></a>
+<h2 id="检查CR0和CR4"><a href="#检查CR0和CR4" class="headerlink" title="检查CR0和CR4"></a>检查CR0和CR4</h2><blockquote>
+<p>The first processors to support VMX operation require that the following bits be 1 in VMX operation:<br>CR0.PE, CR0.NE, CR0.PG, and CR4.VMXE. The restrictions on CR0.PE and CR0.PG imply that VMX<br>operation is supported only in paged protected mode (including IA-32e mode). Therefore, guest<br>software cannot be run in unpaged protected mode or in real-address mode. See Section 31.2,“Supporting Processor Operating Modes in Guest Environments,” for a discussion of how a VMM<br>might support guest software that expects to run in unpaged protected mode or in real-address<br>mode.<br>Later processors support a VM-execution control called “unrestricted guest” (see Section 24.6.2).<br>If this control is 1, CR0.PE and CR0.PG may be 0 in VMX non-root operation (even if the capability<br>MSR IA32_VMX_CR0_FIXED0 reports otherwise). 1 Such processors allow guest software to run in<br>unpaged protected mode or in real-address mode.</p>
+</blockquote>
+<p>检查CR0.PE，CR0.NE，CR0.PG，为1则代表可以开启VT。</p>
+<p>检查CR4.VMXE，为1表示可能有其他驱动开启了VT，必须先关闭VT。</p>
+<p>各标志位相关信息：</p>
+<blockquote>
+<p><strong>Protection Enable (bit 0 of CR0)</strong> — Enables protected mode when set;</p>
+<p><strong>Numeric Error (bit 5 of CR0)</strong> — Enables the native (internal) mechanism for reporting x87 FPU errors<br>when set;</p>
+<p><strong>Paging (bit 31 of CR0)</strong> — Enables paging when set;</p>
+</blockquote>
+<blockquote>
+<p><strong>VMX-Enable Bit (bit 13 of CR4)</strong> — Enables VMX operation when set.</p>
+</blockquote>
+<h2 id="检查MSR"><a href="#检查MSR" class="headerlink" title="检查MSR"></a>检查MSR</h2><blockquote>
+<p>VMXON is also controlled by the IA32_FEATURE_CONTROL MSR (MSR address 3AH). This MSR is cleared to zero when a logical processor is reset. The relevant bits of the MSR are:<br>• <strong>Bit 0 is the lock bit.</strong> If this bit is clear, VMXON causes a general-protection exception. If the lock bit is set, WRMSR to this MSR causes a general-protection exception; the MSR cannot be modified until a power-up reset condition. System BIOS can use this bit to provide a setup option for BIOS to disable support for VMX. To enable VMX support in a platform, BIOS must set bit 1, bit 2, or both (see below), as well as the lock bit.<br>• <strong>Bit 1 enables VMXON in SMX operation.</strong> If this bit is clear, execution of VMXON in SMX operation causes a general-protection exception. Attempts to set this bit on logical processors that do not support both VMX operation (see Section 23.6) and SMX operation (see Chapter 6, “Safer Mode Extensions Reference,” in Intel® 64 and IA-32 Architectures Software Developer’s Manual, Volume 2D) cause general-protection exceptions.<br>• <strong>Bit 2 enables VMXON outside SMX operation.</strong> If this bit is clear, execution of VMXON outside SMX<br>operation causes a general-protection exception. Attempts to set this bit on logical processors that do not support VMX operation (see Section 23.6) cause general-protection exceptions.</p>
+</blockquote>
+<blockquote>
+<p>Ensure that the IA32_FEATURE_CONTROL MSR (MSR index 3AH) has been properly programmed and that its lock bit is set (Bit 0 = 1). This MSR is generally configured by the BIOS using WRMSR.</p>
+</blockquote>
+<p>检查MSR IA32_FEATURE_CONTROL的lock bit (bit 0)，为1则代表可以开启VT，否则根据文档描述会产生异常。</p>
+<h1 id="VMCS-region"><a href="#VMCS-region" class="headerlink" title="VMCS region"></a>VMCS region</h1><h2 id="VMCS-region-结构"><a href="#VMCS-region-结构" class="headerlink" title="VMCS region 结构"></a>VMCS region 结构</h2><p>VMCS region的大小可在 MSR IA32_VMX_BASIC 中查询得到，一般申请4KB内存即可。</p>
+<p>​                                <strong>Format of the VMCS Region</strong></p>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Bits 30:0: VMCS revision identifier</td>
+</tr>
+</tbody>
+</table>
+<p>Bit 31: shadow-VMCS indicator (see Section 24.10) |<br>| 4           | VMX-abort indicator                                          |<br>| 8           | VMCS data (implementation-specific format)                   |</p>
+<p><strong>VMCS revision identifier：</strong>用于避免处理器使用非对应格式的VMCS region，在MSR IA32_VMX_BASIC中可查询得到对应值。</p>
+<p><strong>VMX-abort indicator：</strong>当VMX终止时处理器会填写该区域。</p>
+<p><strong>VMCS data：</strong>VMCS region剩下的区域为VMCS data，用于设置一些属性，是VMCS region最重要的区域。</p>
+<h2 id="VMCS-data"><a href="#VMCS-data" class="headerlink" title="VMCS data"></a>VMCS data</h2><p>VMCS data由6个区域组成：</p>
+<blockquote>
+<p>• <strong>Guest-state area.</strong> Processor state is saved into the guest-state area on VM exits and loaded from there on VM entries.<br>• <strong>Host-state area.</strong> Processor state is loaded from the host-state area on VM exits.<br>• <strong>VM-execution control fields.</strong> These fields control processor behavior in VMX non-root operation. They determine in part the causes of VM exits.<br>• <strong>VM-exit control fields.</strong> These fields control VM exits.<br>• <strong>VM-entry control fields.</strong> These fields control VM entries.<br>• <strong>VM-exit information fields.</strong> These fields receive information on VM exits and describe the cause and the nature of VM exits. On some processors, these fields are read-only.</p>
+</blockquote>
+<h3 id="Guest-state-area"><a href="#Guest-state-area" class="headerlink" title="Guest-state area"></a>Guest-state area</h3><p><strong>需要填充的区域：</strong></p>
+<p><strong>Register部分</strong></p>
+<ul>
+<li><p>控制寄存器 CR0，CR3，CR4 (64 bits each)。</p>
+</li>
+<li><p>调试寄存器 DR7 (64 bits)。</p>
+</li>
+<li><p>RSP，RIP，RFLAGS (64 bits each)。</p>
+</li>
+<li><p>段寄存器CS，SS，DS，ES，FS，GS，LDTR，TR的</p>
+<p>— Selector (16 bits)</p>
+<p>— Base address (64 bits)</p>
+<p>— Segment limit (32 bits)</p>
+<p>— Access rights (32 bits)</p>
+</li>
+<li><p>GDTR，LDTR的</p>
+<p>— Base address (64 bits)</p>
+<p>— Limit (32 bits)</p>
+</li>
+<li><p>MSR的</p>
+<p>— IA32_DEBUGCTL  (64 bits)</p>
+<p>— IA32_SYSENTER_CS (32 bits)</p>
+<p>— IA32_SYSENTER_ESP (64 bits) </p>
+<p>Guest的堆栈。</p>
+<p>— IA32_SYSENTER_EIP (64 bits) </p>
+<p>vmlaunch后Guest的入口点。</p>
+<p>— IA32_EFER (64 bits)</p>
+</li>
+</ul>
+<p><strong>Non-Register部分</strong></p>
+<ul>
+<li><p>Activity state (32 bits). This field identifies the logical processor’s activity state.</p>
+<p>— 0: Active. The logical processor is executing instructions normally.</p>
+<p>— 1: HLT. The logical processor is inactive because it executed the HLT instruction.</p>
+<p>— 2: Shutdown. The logical processor is inactive because it incurred a triple fault 2 or some other serious<br>error.</p>
+<p>— 3: Wait-for-SIPI. The logical processor is inactive because it is waiting for a startup-IPI (SIPI). Future processors may include support for other activity states. Software should read the VMX capability MSR<br>IA32_VMX_MISC (see Appendix A.6) to determine what activity states are supported.</p>
+<p>一般填0即可。</p>
+</li>
+<li><p>Interruptibility state (32 bits). The IA-32 architecture includes features that permit certain events to be<br>blocked for a period of time.</p>
+<p>一般填0即可。</p>
+</li>
+<li><p>VMCS link pointer</p>
+<p>当VMCS类型为shadow时，vmread和vmwrite指令通过该指针访问VMCS。</p>
+<p>当VMCS类型为ordinary时，设置该指针为0xFFFFFFFF’FFFFFFFF。</p>
+</li>
+</ul>
+<h3 id="Host-state-area"><a href="#Host-state-area" class="headerlink" title="Host-state area"></a>Host-state area</h3><p><strong>需要填充的区域：</strong></p>
+<ul>
+<li><p>控制寄存器 CR0，CR3，CR4 (64 bits each)。</p>
+</li>
+<li><p>RSP，RIP (64 bits each)。</p>
+</li>
+<li><p>段寄存器CS，SS，DS，ES，FS，GS，TR的Selector (16 bits)</p>
+</li>
+<li><p>段寄存器FS，GS，TR，GDTR，IDTR的Base-address (64 bits each)</p>
+</li>
+<li><p>MSR的</p>
+<p>— IA32_SYSENTER_CS (32 bits)</p>
+<p>— IA32_SYSENTER_ESP (64 bits)</p>
+<p>Host的堆栈，需要自己申请内存。</p>
+<p>— IA32_SYSENTER_EIP (64 bits)</p>
+<p>Host的入口点，即vmm处理程序的入口点。</p>
+<p>— IA32_EFER (64 bits)</p>
+</li>
+</ul>
+<h3 id="VM-execution-control-fields"><a href="#VM-execution-control-fields" class="headerlink" title="VM-execution control fields"></a>VM-execution control fields</h3><p>暂时搁置。</p>
+<h3 id="VM-exit-control-fields"><a href="#VM-exit-control-fields" class="headerlink" title="VM-exit control fields"></a>VM-exit control fields</h3>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/21/绕过ObRegisterCallbacks注册的回调/" rel="next" title="绕过ObRegisterCallbacks注册的回调">
+                <i class="fa fa-chevron-left"></i> 绕过ObRegisterCallbacks注册的回调
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/25/XTrap简略分析/" rel="prev" title="XTrap简略分析">
+                XTrap简略分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#检查是否支持VT"><span class="nav-number">1.</span> <span class="nav-text">检查是否支持VT</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#检查CPU"><span class="nav-number">1.1.</span> <span class="nav-text">检查CPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检查CR0和CR4"><span class="nav-number">1.2.</span> <span class="nav-text">检查CR0和CR4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检查MSR"><span class="nav-number">1.3.</span> <span class="nav-text">检查MSR</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VMCS-region"><span class="nav-number">2.</span> <span class="nav-text">VMCS region</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VMCS-region-结构"><span class="nav-number">2.1.</span> <span class="nav-text">VMCS region 结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VMCS-data"><span class="nav-number">2.2.</span> <span class="nav-text">VMCS data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Guest-state-area"><span class="nav-number">2.2.1.</span> <span class="nav-text">Guest-state area</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Host-state-area"><span class="nav-number">2.2.2.</span> <span class="nav-text">Host-state area</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VM-execution-control-fields"><span class="nav-number">2.2.3.</span> <span class="nav-text">VM-execution control fields</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VM-exit-control-fields"><span class="nav-number">2.2.4.</span> <span class="nav-text">VM-exit control fields</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

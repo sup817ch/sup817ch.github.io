@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="之前一直没有整理过的东西，现在补一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows x64 SEH笔记">
+<meta property="og:url" content="http://sup817ch.github.io/2020/09/04/Windows-x64-SEH笔记/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="之前一直没有整理过的东西，现在补一下。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://tvax4.sinaimg.cn/large/006juYZNly1gieywnc3r2j30u90k341u.jpg">
+<meta property="og:updated_time" content="2020-12-24T02:28:41.588Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Windows x64 SEH笔记">
+<meta name="twitter:description" content="之前一直没有整理过的东西，现在补一下。">
+<meta name="twitter:image" content="http://tvax4.sinaimg.cn/large/006juYZNly1gieywnc3r2j30u90k341u.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2020/09/04/Windows-x64-SEH笔记/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Windows x64 SEH笔记 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/09/04/Windows-x64-SEH笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Windows x64 SEH笔记
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-04 17:58:25" itemprop="dateCreated datePublished" datetime="2020-09-04T17:58:25+08:00">2020-09-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-24 10:28:41" itemprop="dateModified" datetime="2020-12-24T10:28:41+08:00">2020-12-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前一直没有整理过的东西，现在补一下。</p>
+<a id="more"></a>
+<h1 id="x64-SEH简介"><a href="#x64-SEH简介" class="headerlink" title="x64 SEH简介"></a>x64 SEH简介</h1><p>先回顾一下x86的SEH构造：</p>
+<ol>
+<li>在自身的栈空间中分配并初始化一个 EXCEPTION_REGISTRATION(_RECORD) 结构体。</li>
+<li>将该 EXCEPTION_REGISTRATION(_RECORD) 挂入当前线程的异常链表。</li>
+</ol>
+<p>可以看出x86的SEH都是动态构建的。</p>
+<p>x64不再基于链式存储SEH，而是使用表式存储，信息直接存储在PE文件中的.pdata节中，具体位置可于DataDirectory的Exception Table(IMAGE_DIRECTORY_ENTRY_EXCEPTION)中找到 。</p>
+<p>Exception Table由结构为RUNTIME_FUNCTION的数组组成。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">RUNTIME_FUNCTION</span> &#123;</span></span><br><span class="line">    ULONG BeginAddress;</span><br><span class="line">    ULONG EndAddress;</span><br><span class="line">    ULONG UnwindData;</span><br><span class="line">&#125; RUNTIME_FUNCTION, *PRUNTIME_FUNCTION;</span><br></pre></td></tr></table></figure>
+<p>每个RUNTIME_FUNCTION就是一个FunctionEntry，记录了函数的信息，其中BeginAddress和EndAddress就是函数的地址范围，而UnwindData指向UNWIND_INFO。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> _UNWIND_OP_CODES &#123;</span><br><span class="line">    UWOP_PUSH_NONVOL = <span class="number">0</span>, <span class="comment">/* info == register number */</span></span><br><span class="line">    UWOP_ALLOC_LARGE,     <span class="comment">/* no info, alloc size in next 2 slots */</span></span><br><span class="line">    UWOP_ALLOC_SMALL,     <span class="comment">/* info == size of allocation / 8 - 1 */</span></span><br><span class="line">    UWOP_SET_FPREG,       <span class="comment">/* no info, FP = RSP + UNWIND_INFO.FPRegOffset*16 */</span></span><br><span class="line">    UWOP_SAVE_NONVOL,     <span class="comment">/* info == register number, offset in next slot */</span></span><br><span class="line">    UWOP_SAVE_NONVOL_FAR, <span class="comment">/* info == register number, offset in next 2 slots */</span></span><br><span class="line">    UWOP_SAVE_XMM128 = <span class="number">8</span>, <span class="comment">/* info == XMM reg number, offset in next slot */</span></span><br><span class="line">    UWOP_SAVE_XMM128_FAR, <span class="comment">/* info == XMM reg number, offset in next 2 slots */</span></span><br><span class="line">    UWOP_PUSH_MACHFRAME   <span class="comment">/* info == 0: no error-code, 1: error-code */</span></span><br><span class="line">&#125; UNWIND_CODE_OPS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> _UNWIND_CODE &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        UBYTE CodeOffset;</span><br><span class="line">        UBYTE UnwindOp : <span class="number">4</span>;</span><br><span class="line">        UBYTE OpInfo   : <span class="number">4</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    USHORT FrameOffset;</span><br><span class="line">&#125; UNWIND_CODE, *PUNWIND_CODE;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNW_FLAG_EHANDLER  0x01</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNW_FLAG_UHANDLER  0x02</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNW_FLAG_CHAININFO 0x04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">UNWIND_INFO</span> &#123;</span></span><br><span class="line">    UBYTE Version       : <span class="number">3</span>;</span><br><span class="line">    UBYTE Flags         : <span class="number">5</span>;</span><br><span class="line">    UBYTE SizeOfProlog;</span><br><span class="line">    UBYTE CountOfCodes;</span><br><span class="line">    UBYTE FrameRegister : <span class="number">4</span>;</span><br><span class="line">    UBYTE FrameOffset   : <span class="number">4</span>;</span><br><span class="line">    UNWIND_CODE UnwindCode[<span class="number">1</span>];</span><br><span class="line"><span class="comment">/*  UNWIND_CODE MoreUnwindCode[((CountOfCodes + 1) &amp; ~1) - 1];</span></span><br><span class="line"><span class="comment">*   union &#123;</span></span><br><span class="line"><span class="comment">*       OPTIONAL ULONG ExceptionHandler;</span></span><br><span class="line"><span class="comment">*       OPTIONAL ULONG FunctionEntry;</span></span><br><span class="line"><span class="comment">*   &#125;;</span></span><br><span class="line"><span class="comment">*   OPTIONAL ULONG ExceptionData[]; */</span></span><br><span class="line">&#125; UNWIND_INFO, *PUNWIND_INFO;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">SCOPE_TABLE</span> &#123;</span></span><br><span class="line">    DWORD Count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        DWORD BeginAddress;</span><br><span class="line">        DWORD EndAddress;</span><br><span class="line">        DWORD HandlerAddress;</span><br><span class="line">        DWORD JumpTarget;</span><br><span class="line">    &#125; ScopeRecord[<span class="number">1</span>];</span><br><span class="line">&#125; SCOPE_TABLE, *PSCOPE_TABLE;</span><br></pre></td></tr></table></figure>
+<p>该结构包含了函数的序幕操作和异常处理信息，序幕操作包括开辟栈空间、保存非易失寄存器等。CountOfCodes记录了UnwindCode结构的个数。UnwindCode之后的成员是可选的，取决于是否有异常处理过程或者是否是链式的。ExceptionHandler指向异常处理函数，在MSVC中通常是__C_specific_handler，ExceptionData则是ExceptionHandler指定使用的数据，MSVC中通常是SCOPE_TABLE结构。SCOPE_TABLE包含了函数中try的信息，具体含义在下面代码的注释当中。首先异常会先分发到__C_specific_handler，然后通过RIP和SCOPE_TABLE结构判断是哪个try。</p>
+<h1 id="实验代码测试"><a href="#实验代码测试" class="headerlink" title="实验代码测试"></a>实验代码测试</h1><p>代码如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> _UNWIND_OP_CODES &#123;</span><br><span class="line">	UWOP_PUSH_NONVOL = <span class="number">0</span>, <span class="comment">/* info == register number */</span></span><br><span class="line">	UWOP_ALLOC_LARGE,     <span class="comment">/* no info, alloc size in next 2 slots */</span></span><br><span class="line">	UWOP_ALLOC_SMALL,     <span class="comment">/* info == size of allocation / 8 - 1 */</span></span><br><span class="line">	UWOP_SET_FPREG,       <span class="comment">/* no info, FP = RSP + UNWIND_INFO.FPRegOffset*16 */</span></span><br><span class="line">	UWOP_SAVE_NONVOL,     <span class="comment">/* info == register number, offset in next slot */</span></span><br><span class="line">	UWOP_SAVE_NONVOL_FAR, <span class="comment">/* info == register number, offset in next 2 slots */</span></span><br><span class="line">	UWOP_SAVE_XMM128 = <span class="number">8</span>, <span class="comment">/* info == XMM reg number, offset in next slot */</span></span><br><span class="line">	UWOP_SAVE_XMM128_FAR, <span class="comment">/* info == XMM reg number, offset in next 2 slots */</span></span><br><span class="line">	UWOP_PUSH_MACHFRAME   <span class="comment">/* info == 0: no error-code, 1: error-code */</span></span><br><span class="line">&#125; UNWIND_CODE_OPS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> _UNWIND_CODE &#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">		UCHAR CodeOffset;</span><br><span class="line">		UCHAR UnwindOp : <span class="number">4</span>;</span><br><span class="line">		UCHAR OpInfo : <span class="number">4</span>;</span><br><span class="line">	&#125;;</span><br><span class="line">	USHORT FrameOffset;</span><br><span class="line">&#125; UNWIND_CODE, *PUNWIND_CODE;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNW_FLAG_EHANDLER  0x01</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNW_FLAG_UHANDLER  0x02</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNW_FLAG_CHAININFO 0x04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">UNWIND_INFO</span> &#123;</span></span><br><span class="line">	UCHAR Version : <span class="number">3</span>;</span><br><span class="line">	UCHAR Flags : <span class="number">5</span>;</span><br><span class="line">	UCHAR SizeOfProlog;</span><br><span class="line">	UCHAR CountOfCodes;</span><br><span class="line">	UCHAR FrameRegister : <span class="number">4</span>;</span><br><span class="line">	UCHAR FrameOffset : <span class="number">4</span>;</span><br><span class="line">	UNWIND_CODE UnwindCode[<span class="number">1</span>];</span><br><span class="line">	<span class="comment">/*  UNWIND_CODE MoreUnwindCode[((CountOfCodes + 1) &amp; ~1) - 1];</span></span><br><span class="line"><span class="comment">	*   union &#123;</span></span><br><span class="line"><span class="comment">	*       OPTIONAL ULONG ExceptionHandler;</span></span><br><span class="line"><span class="comment">	*       OPTIONAL ULONG FunctionEntry;</span></span><br><span class="line"><span class="comment">	*   &#125;;</span></span><br><span class="line"><span class="comment">	*   OPTIONAL ULONG ExceptionData[]; */</span></span><br><span class="line">&#125; UNWIND_INFO, *PUNWIND_INFO;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetUnwindCodeEntry(info, index) \</span></span><br><span class="line">    ((info)-&gt;UnwindCode[index])</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetLanguageSpecificDataPtr(info) \</span></span><br><span class="line">    ((PVOID)&amp;GetUnwindCodeEntry((info),((info)-&gt;CountOfCodes + <span class="number">1</span>) &amp; ~<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetExceptionHandler(base, info) \</span></span><br><span class="line">    ((PVOID)((base) + *(PULONG)GetLanguageSpecificDataPtr(info)))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetChainedFunctionEntry(base, info) \</span></span><br><span class="line">    ((PRUNTIME_FUNCTION)((base) + *(PULONG)GetLanguageSpecificDataPtr(info)))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetExceptionDataPtr(info) \</span></span><br><span class="line">    ((PVOID)((PULONG)GetLanguageSpecificDataPtr(info) + <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="function">VOID <span class="title">FindExceptionTable</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">ULONG64 imageBase = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	imageBase = (ULONG64)GetModuleHandle(<span class="literal">NULL</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"This is a SEH test\nimagebase:%p main:%p\n"</span>, imageBase, main);</span><br><span class="line">	__try</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"in try\n"</span>);</span><br><span class="line">		<span class="keyword">int</span> *p = <span class="number">0</span>;</span><br><span class="line">		*p = <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	__except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"in except\n"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	FindExceptionTable();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">VOID <span class="title">FindExceptionTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">auto</span> ntHeader = (PIMAGE_NT_HEADERS)(((PIMAGE_DOS_HEADER)imageBase)-&gt;e_lfanew + imageBase);</span><br><span class="line">	<span class="keyword">auto</span> exceptionTable = (PIMAGE_RUNTIME_FUNCTION_ENTRY)(ntHeader-&gt;OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION].VirtualAddress + imageBase);</span><br><span class="line">	<span class="keyword">auto</span> size = ntHeader-&gt;OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION].Size;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"exceptionTable rva:%08X size:%d\n"</span>, (ULONG64)exceptionTable - imageBase, size);</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size / <span class="keyword">sizeof</span>(IMAGE_RUNTIME_FUNCTION_ENTRY); i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//BeginAddress为升序排序</span></span><br><span class="line">		<span class="keyword">if</span> (exceptionTable[i].BeginAddress + imageBase &gt;= (ULONG64)main)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">auto</span> et = &amp;exceptionTable[i];</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"exceptionTable[%d] BeginAddress:%08X EndAddress:%08X UnwindInfoAddress:%08X\n"</span>,</span><br><span class="line">				i, et-&gt;BeginAddress, et-&gt;EndAddress, et-&gt;UnwindInfoAddress);</span><br><span class="line">			<span class="keyword">auto</span> unwind = (PUNWIND_INFO)(et-&gt;UnwindInfoAddress + imageBase);</span><br><span class="line">			<span class="keyword">if</span> (unwind-&gt;Flags &amp; UNW_FLAG_EHANDLER)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">"ExceptionHandler:%p\n"</span>, GetExceptionHandler(imageBase, unwind)); <span class="comment">//指向__C_specific_handler</span></span><br><span class="line">				<span class="keyword">auto</span> st = (PSCOPE_TABLE)GetExceptionDataPtr(unwind);</span><br><span class="line">				<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; st-&gt;Count; j++)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="built_in">printf</span>(<span class="string">"ScopeRecord[%d] BeginAddress:%08X EndAddress:%08X HandlerAddress:%08X JumpTarget:%08X"</span>,</span><br><span class="line">						j, </span><br><span class="line">						st-&gt;ScopeRecord[j].BeginAddress,	<span class="comment">//try的起始地址</span></span><br><span class="line">						st-&gt;ScopeRecord[j].EndAddress,		<span class="comment">//try的结束地址</span></span><br><span class="line">						st-&gt;ScopeRecord[j].HandlerAddress,	<span class="comment">//当为try except时为filter函数地址，当为try finally时为finally_handler</span></span><br><span class="line">						st-&gt;ScopeRecord[j].JumpTarget);		<span class="comment">//当为try except时为except_handler，当为try finally时为0</span></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译时将增量链接关闭，确保取得真实函数地址，运行的结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">This is a SEH test</span><br><span class="line">imagebase:00007FF6E9190000 main:00007FF6E9191400</span><br><span class="line">in try</span><br><span class="line">in except</span><br><span class="line">exceptionTable rva:00008000 size:1284</span><br><span class="line">exceptionTable[5] BeginAddress:00001400 EndAddress:00001492 UnwindInfoAddress:00006200</span><br><span class="line">ExceptionHandler:00007FF6E9194522</span><br><span class="line">ScopeRecord[0] BeginAddress:00001454 EndAddress:00001474 HandlerAddress:00004740 JumpTarget:00001474</span><br></pre></td></tr></table></figure>
+<p>接下来通过ida验证一下</p>
+<p><img src="http://tvax4.sinaimg.cn/large/006juYZNly1gieywnc3r2j30u90k341u.jpg" alt="1"></p>
+<p>其中except里的filter指向了一个直接返回EXCEPTION_EXECUTE_HANDLER的函数。</p>
+<h1 id="无模块注入中SEH的处理办法"><a href="#无模块注入中SEH的处理办法" class="headerlink" title="无模块注入中SEH的处理办法"></a>无模块注入中SEH的处理办法</h1><p>这里直接抄一下xjun大佬的代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> VOID</span><br><span class="line">InsertExceptionTable(PMEMORYMODULE <span class="keyword">module</span>)</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(_WIN64)</span></span><br><span class="line"></span><br><span class="line">	PIMAGE_DATA_DIRECTORY		pDataTable = \</span><br><span class="line">		&amp;<span class="keyword">module</span>-&gt;headers-&gt;OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION];</span><br><span class="line"></span><br><span class="line">	PIMAGE_RUNTIME_FUNCTION_ENTRY pFuncTable = \</span><br><span class="line">		(PIMAGE_RUNTIME_FUNCTION_ENTRY)((ULONG_PTR)<span class="keyword">module</span>-&gt;codeBase + pDataTable-&gt;VirtualAddress);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (pfnRtlAddFunctionTable64 != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pfnRtlAddFunctionTable64(pFuncTable, pDataTable-&gt;Size / <span class="keyword">sizeof</span>(IMAGE_RUNTIME_FUNCTION_ENTRY), (DWORD64)<span class="keyword">module</span>-&gt;codeBase);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">if</span> (dwMajorVersion == <span class="number">6</span> &amp;&amp; dwMinorVersion == <span class="number">1</span>) <span class="comment">//WIM7</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (pfnRtlInsertInvertedFunctionTable_Win7 != <span class="literal">NULL</span>);</span><br><span class="line">		&#123;</span><br><span class="line">			pfnRtlInsertInvertedFunctionTable_Win7(LdrpInvertedFunctionTable, <span class="keyword">module</span>-&gt;codeBase, <span class="keyword">module</span>-&gt;headers-&gt;OptionalHeader.SizeOfImage);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (dwMajorVersion == <span class="number">6</span> &amp;&amp; dwMinorVersion == <span class="number">3</span>) <span class="comment">//WIN8</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (pfnRtlInsertInvertedFunctionTable_Win8_Win10 != <span class="literal">NULL</span>);</span><br><span class="line">		&#123;</span><br><span class="line">			pfnRtlInsertInvertedFunctionTable_Win8_Win10(<span class="keyword">module</span>-&gt;codeBase, <span class="keyword">module</span>-&gt;headers-&gt;OptionalHeader.SizeOfImage);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (dwMajorVersion == <span class="number">10</span> &amp;&amp; dwMinorVersion == <span class="number">0</span>) <span class="comment">//WIN10</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (pfnRtlInsertInvertedFunctionTable_Win8_Win10 != <span class="literal">NULL</span>);</span><br><span class="line">		&#123;</span><br><span class="line">			pfnRtlInsertInvertedFunctionTable_Win8_Win10(<span class="keyword">module</span>-&gt;codeBase, <span class="keyword">module</span>-&gt;headers-&gt;OptionalHeader.SizeOfImage);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// not support</span></span><br><span class="line">	&#125;</span><br><span class="line">#endif</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数分成了两个部分，一部分是处理64位程序，另一部分是处理32位程序，分析一下为什么这么写：</p>
+<p>首先简单复习一下用户层的异常分发，异常处理从内核层返回到用户层之后首先是到KiUserExceptionDispatcher，然后x64环境下会先判断是否是Wow64，如果是的话就分发到32位的ntdll当中，处理过程和原生32位的一致。</p>
+<p>之后KiUserExceptionDispatcher会调用RtlDispatchException。64位的RtlDispatchException会调用RtlLookupFunctionEntry，RtlLookupFunctionEntry不但会查找原本就存在于PE当中FunctionEntry，还会再调用RtlpLookupDynamicFunctionEntry来查找通过动态方式添加到RtlpDynamicFunctionTableTree中的FunctionEntry。微软文档在说明如何处理动态生成函数时提到了两个函数RtlInstallFunctionTableCallback和RtlAddFunctionTable，这两个函数就是把FunctionEntry动态添加到了RtlpDynamicFunctionTableTree当中。而32位的RtlDispatchException还是通过老规矩SEH链来调用异常处理函数，至于这里为啥还要插个InvertedFunctionTable，大概是因为32位的RtlDispatchException还会调用一个RtlIsValidHandler来检查Handler是否合法，wrk中RtlIsValidHandler的实现如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">BOOLEAN</span><br><span class="line">RtlIsValidHandler (</span><br><span class="line">    IN PEXCEPTION_ROUTINE Handler</span><br><span class="line">    )</span><br><span class="line">&#123;</span><br><span class="line">    PULONG FunctionTable;</span><br><span class="line">    ULONG FunctionTableLength;</span><br><span class="line">    PVOID Base;</span><br><span class="line"></span><br><span class="line">    FunctionTable = RtlLookupFunctionTable(Handler, &amp;Base, &amp;FunctionTableLength);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (FunctionTable &amp;&amp; FunctionTableLength) &#123;</span><br><span class="line">        PEXCEPTION_ROUTINE FunctionEntry;</span><br><span class="line">        LONG High, Middle, Low;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ((FunctionTable == LongToPtr(<span class="number">-1</span>)) &amp;&amp; (FunctionTableLength == (ULONG)<span class="number">-1</span>)) &#123;</span><br><span class="line">            <span class="comment">// Address is in an image that shouldn't have any handlers (like a resource only dll).</span></span><br><span class="line">            RtlInvalidHandlerDetected((PVOID)((ULONG)Handler+(ULONG)Base), LongToPtr(<span class="number">-1</span>), <span class="number">-1</span>);</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// Bias the handler value down by the image base and see if the result</span></span><br><span class="line">        <span class="comment">// is in the table</span></span><br><span class="line"></span><br><span class="line">        (ULONG)Handler -= (ULONG)Base;</span><br><span class="line">        Low = <span class="number">0</span>;</span><br><span class="line">        High = FunctionTableLength;</span><br><span class="line">        <span class="keyword">while</span> (High &gt;= Low) &#123;</span><br><span class="line">            Middle = (Low + High) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">            FunctionEntry = (PEXCEPTION_ROUTINE)FunctionTable[Middle];</span><br><span class="line">            <span class="keyword">if</span> (Handler &lt; FunctionEntry) &#123;</span><br><span class="line">                High = Middle - <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Handler &gt; FunctionEntry) &#123;</span><br><span class="line">                Low = Middle + <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// found it</span></span><br><span class="line">                <span class="keyword">return</span> TRUE;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Didn't find it</span></span><br><span class="line">        RtlInvalidHandlerDetected((PVOID)((ULONG)Handler+(ULONG)Base), FunctionTable, FunctionTableLength);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Can't verify</span></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现如果找不到FunctionTable就直接返回TRUE了，所以32位似乎不插这个InvertedFunctionTable也是没关系的。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://docs.microsoft.com/en-us/cpp/build/exception-handling-x64?view=vs-2019" target="_blank" rel="noopener">x64 exception handling</a></p>
+<p><a href="https://blog.csdn.net/shevacoming/article/details/7777530" target="_blank" rel="noopener">x64的seh</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1471316" target="_blank" rel="noopener">SEH分析笔记（X64篇）</a></p>
+<p>《加密与解密》第四版</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/07/03/VBS-HyperGuard/" rel="next" title="VBS & HyperGuard">
+                <i class="fa fa-chevron-left"></i> VBS & HyperGuard
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/09/18/代码虚拟机保护学习/" rel="prev" title="代码虚拟机保护学习">
+                代码虚拟机保护学习 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x64-SEH简介"><span class="nav-number">1.</span> <span class="nav-text">x64 SEH简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实验代码测试"><span class="nav-number">2.</span> <span class="nav-text">实验代码测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无模块注入中SEH的处理办法"><span class="nav-number">3.</span> <span class="nav-text">无模块注入中SEH的处理办法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

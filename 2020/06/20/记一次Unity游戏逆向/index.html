@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="游戏是steam上一款单机音游，难度有点高，在被虐了千百次后，我决定对这个游戏下手。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次Unity游戏逆向">
+<meta property="og:url" content="http://sup817ch.github.io/2020/06/20/记一次Unity游戏逆向/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="游戏是steam上一款单机音游，难度有点高，在被虐了千百次后，我决定对这个游戏下手。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://tvax3.sinaimg.cn/large/006juYZNly1gfz0xlot64j30d803ljra.jpg">
+<meta property="og:image" content="http://tvax1.sinaimg.cn/large/006juYZNly1gfywqjo40uj30kr0hqads.jpg">
+<meta property="og:image" content="http://tva2.sinaimg.cn/large/006juYZNly1gfywy8q3ohj30p70eojt0.jpg">
+<meta property="og:image" content="http://tva3.sinaimg.cn/large/006juYZNly1gfz0z0v66dj30d1067aa3.jpg">
+<meta property="og:image" content="http://tva2.sinaimg.cn/large/006juYZNly1gfz1a92eswj309d06daa6.jpg">
+<meta property="og:image" content="http://tva4.sinaimg.cn/large/006juYZNly1gfz1ln5dp4j30ps064aag.jpg">
+<meta property="og:image" content="http://tva3.sinaimg.cn/large/006juYZNly1gfz1nv0gq1j30pd0imacj.jpg">
+<meta property="og:image" content="http://tvax2.sinaimg.cn/large/006juYZNly1gfz22vrmf2j30pn0ih0uz.jpg">
+<meta property="og:image" content="http://tvax2.sinaimg.cn/large/006juYZNly1gfz2bkfw2yj30dr05hq30.jpg">
+<meta property="og:image" content="http://tvax4.sinaimg.cn/large/006juYZNly1gfz2c9sjf2j30i1035dfu.jpg">
+<meta property="og:image" content="http://tvax1.sinaimg.cn/large/006juYZNly1gfz2wd3cicj30cc0drmxp.jpg">
+<meta property="og:image" content="http://tvax3.sinaimg.cn/large/006juYZNly1gfz30tjjq6j31950pdgpy.jpg">
+<meta property="og:image" content="http://tva2.sinaimg.cn/large/006juYZNly1gfz32qqaw9j30kk0cd756.jpg">
+<meta property="og:image" content="http://tvax4.sinaimg.cn/large/006juYZNly1gfz3694qs3j30z903dmxg.jpg">
+<meta property="og:image" content="http://tvax3.sinaimg.cn/large/006juYZNly1gfz3wwgteoj31950pdgpl.jpg">
+<meta property="og:updated_time" content="2020-12-24T02:28:41.596Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次Unity游戏逆向">
+<meta name="twitter:description" content="游戏是steam上一款单机音游，难度有点高，在被虐了千百次后，我决定对这个游戏下手。">
+<meta name="twitter:image" content="http://tvax3.sinaimg.cn/large/006juYZNly1gfz0xlot64j30d803ljra.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2020/06/20/记一次Unity游戏逆向/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>记一次Unity游戏逆向 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/06/20/记一次Unity游戏逆向/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">记一次Unity游戏逆向
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-20 17:40:36" itemprop="dateCreated datePublished" datetime="2020-06-20T17:40:36+08:00">2020-06-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-24 10:28:41" itemprop="dateModified" datetime="2020-12-24T10:28:41+08:00">2020-12-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>游戏是steam上一款单机音游，难度有点高，在被虐了千百次后，我决定对这个游戏下手。</p>
+<a id="more"></a>
+<h1 id="探秘"><a href="#探秘" class="headerlink" title="探秘"></a>探秘</h1><p>大家都知道，unity游戏的主要逻辑都在Assembly-CSharp.dll，只要用dnspy之类的工具就能够轻易的反编译出源码。于是我兴冲冲的掏出了我的dnspy，将Assembly-CSharp.dll拖了进去，然而一片空白的dnspy告诉我事情没这么简单。</p>
+<p><img src="http://tvax3.sinaimg.cn/large/006juYZNly1gfz0xlot64j30d803ljra.jpg" alt="3"></p>
+<p>使用010 editor打开文件，发现并不是标准的PE格式，DOS头的标志MZ被修改为了ML。</p>
+<p><img src="http://tvax1.sinaimg.cn/large/006juYZNly1gfywqjo40uj30kr0hqads.jpg" alt="1"></p>
+<p>那就老规矩，开启游戏，对mono.dll的mono_image_open_from_data_with_name下断点观察，结果发现游戏并没有在这部分解密PE文件。抱着不想的预感，使用CE搜索了一下这个游戏的前几个字节，结果不出意料。</p>
+<p><img src="http://tva2.sinaimg.cn/large/006juYZNly1gfywy8q3ohj30p70eojt0.jpg" alt="2"></p>
+<p>可以看到游戏并没有直接解密文件，外面长啥样内存里还是啥样。看来游戏应该是对mono的代码进行了修改，用自己的规则来加载文件。那没有办法，只能老老实实的跟着代码走一遍。</p>
+<h1 id="解密"><a href="#解密" class="headerlink" title="解密"></a>解密</h1><p>将mono.dll拖进ida，一般加载dll都会走到mono_image_open_from_data_with_name，所以我们直接定位到这里，然后从github下了一份mono的源码作为对照。顺着流程走下去会走到do_mono_image_load函数，这个函数就是用来解析加载dll文件的。</p>
+<h2 id="PEHeader部分"><a href="#PEHeader部分" class="headerlink" title="PEHeader部分"></a>PEHeader部分</h2><p>首先看到pe_image_load_pe_data，这个函数是用来解析PE Header部分的，通过对比可以看出这个函数与源码不一样，是被修改过的，ida F5代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">_BOOL8 __<span class="function">fastcall <span class="title">pe_image_load_pe_data</span><span class="params">(__int64 image)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *header; <span class="comment">// rdi</span></span><br><span class="line">  __int64 v2_image; <span class="comment">// rbx</span></span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> section_table_offset; <span class="comment">// eax</span></span><br><span class="line">  _BOOL8 result; <span class="comment">// rax</span></span><br><span class="line">  <span class="keyword">char</span> data[<span class="number">128</span>]; <span class="comment">// [rsp+20h] [rbp-88h]</span></span><br><span class="line"></span><br><span class="line">  header = *(<span class="keyword">char</span> **)(image + <span class="number">0x50</span>);</span><br><span class="line">  v2_image = image;</span><br><span class="line">  result = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> ( *(_DWORD *)(image + <span class="number">24</span>) &gt;= <span class="number">0x80</span>u )       <span class="comment">// raw_data_len</span></span><br><span class="line">  &#123;</span><br><span class="line">    memmove(data, *(<span class="keyword">const</span> <span class="keyword">void</span> **)(image + <span class="number">16</span>), <span class="number">0x80</span>ui64);<span class="comment">// raw_data</span></span><br><span class="line">    <span class="keyword">if</span> ( data[<span class="number">0</span>] == <span class="string">'M'</span> &amp;&amp; data[<span class="number">1</span>] == <span class="string">'L'</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      section_table_offset = do_load_header(v2_image, header, *(_DWORD *)&amp;data[<span class="number">0x3C</span>] - <span class="number">0x4D4C</span>);<span class="comment">// NtHeader offset - 0x4D4C</span></span><br><span class="line">      <span class="keyword">if</span> ( section_table_offset &gt;= <span class="number">0</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">if</span> ( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)load_section_tables(v2_image, (__int64)header, section_table_offset) )</span><br><span class="line">          result = <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br></pre></td></tr></table></figure>
+<p>首先可以看到被修改过的mono在识别DOS头标志的时候用的不是MZ而是ML，与修改过的dll文件一致，然后在读取0x3c位置也就是NtHeader偏移值的时候减去了0x4D4C。do_load_header主要是记录一下IMAGE_NT_HEADERS结构，与源码没什么太大的差异，唯一的区别就是在识别NtHeader标志的时候用的不是PE而是ML，与修改过的dll一致。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">signed</span> __int64 __<span class="function">fastcall <span class="title">do_load_header</span><span class="params">(__int64 image, <span class="keyword">char</span> *header, <span class="keyword">int</span> e_lfanew)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 v3; <span class="comment">// rdi</span></span><br><span class="line">  <span class="keyword">char</span> *v4_header; <span class="comment">// rbx</span></span><br><span class="line">  __int64 v5; <span class="comment">// rsi</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> section_table_offset; <span class="comment">// edi</span></span><br><span class="line">  <span class="keyword">int</span> v8; <span class="comment">// er11</span></span><br><span class="line">  <span class="keyword">int</span> v9; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">char</span> Dst; <span class="comment">// [rsp+20h] [rbp-D8h]</span></span><br><span class="line">  <span class="keyword">int</span> v11; <span class="comment">// [rsp+50h] [rbp-A8h]</span></span><br><span class="line">  <span class="keyword">int</span> v12; <span class="comment">// [rsp+58h] [rbp-A0h]</span></span><br><span class="line">  <span class="keyword">int</span> v13; <span class="comment">// [rsp+5Ch] [rbp-9Ch]</span></span><br><span class="line">  __int16 v14; <span class="comment">// [rsp+60h] [rbp-98h]</span></span><br><span class="line">  __int16 v15; <span class="comment">// [rsp+62h] [rbp-96h]</span></span><br><span class="line">  __int16 v16; <span class="comment">// [rsp+64h] [rbp-94h]</span></span><br><span class="line">  __int16 v17; <span class="comment">// [rsp+66h] [rbp-92h]</span></span><br><span class="line">  __int16 v18; <span class="comment">// [rsp+68h] [rbp-90h]</span></span><br><span class="line">  __int16 v19; <span class="comment">// [rsp+6Ah] [rbp-8Eh]</span></span><br><span class="line">  <span class="keyword">int</span> v20; <span class="comment">// [rsp+6Ch] [rbp-8Ch]</span></span><br><span class="line">  <span class="keyword">int</span> v21; <span class="comment">// [rsp+70h] [rbp-88h]</span></span><br><span class="line">  <span class="keyword">int</span> v22; <span class="comment">// [rsp+74h] [rbp-84h]</span></span><br><span class="line">  <span class="keyword">int</span> v23; <span class="comment">// [rsp+78h] [rbp-80h]</span></span><br><span class="line">  __int16 v24; <span class="comment">// [rsp+7Ch] [rbp-7Ch]</span></span><br><span class="line">  __int16 v25; <span class="comment">// [rsp+7Eh] [rbp-7Ah]</span></span><br><span class="line">  <span class="keyword">int</span> v26; <span class="comment">// [rsp+80h] [rbp-78h]</span></span><br><span class="line">  <span class="keyword">int</span> v27; <span class="comment">// [rsp+88h] [rbp-70h]</span></span><br><span class="line">  <span class="keyword">int</span> v28; <span class="comment">// [rsp+90h] [rbp-68h]</span></span><br><span class="line">  <span class="keyword">int</span> v29; <span class="comment">// [rsp+98h] [rbp-60h]</span></span><br><span class="line">  <span class="keyword">int</span> v30; <span class="comment">// [rsp+9Ch] [rbp-5Ch]</span></span><br><span class="line">  <span class="keyword">char</span> Src; <span class="comment">// [rsp+A0h] [rbp-58h]</span></span><br><span class="line"></span><br><span class="line">  v3 = e_lfanew;</span><br><span class="line">  v4_header = header;</span><br><span class="line">  v5 = image;</span><br><span class="line">  <span class="keyword">if</span> ( e_lfanew + <span class="number">248</span>i64 &gt; (<span class="keyword">unsigned</span> __int64)*(<span class="keyword">unsigned</span> <span class="keyword">int</span> *)(image + <span class="number">24</span>) )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0xFFFFFFFF</span>i64;</span><br><span class="line">  memmove(header, (<span class="keyword">const</span> <span class="keyword">void</span> *)(e_lfanew + *(_QWORD *)(image + <span class="number">16</span>)), <span class="number">0xF8</span>ui64);<span class="comment">// raw_data</span></span><br><span class="line">  <span class="keyword">if</span> ( *v4_header != <span class="string">'M'</span> || v4_header[<span class="number">1</span>] != <span class="string">'L'</span> )<span class="comment">// NtHeader signature</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0xFFFFFFFF</span>i64;</span><br><span class="line">  <span class="keyword">if</span> ( *((_WORD *)v4_header + <span class="number">12</span>) == <span class="number">0x10B</span> )    <span class="comment">// PE32</span></span><br><span class="line">  &#123;</span><br><span class="line">    section_table_offset = v3 + <span class="number">248</span>;</span><br><span class="line">    <span class="keyword">if</span> ( *((_WORD *)v4_header + <span class="number">10</span>) != <span class="number">0xE0</span> )   <span class="comment">// SizeOfOptionalHeader</span></span><br><span class="line">      <span class="keyword">return</span> <span class="number">0xFFFFFFFF</span>i64;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( *((_WORD *)v4_header + <span class="number">12</span>) != <span class="number">523</span> || *((_WORD *)v4_header + <span class="number">10</span>) != <span class="number">240</span> )</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0xFFFFFFFF</span>i64;</span><br><span class="line">    memmove(&amp;Dst, (<span class="keyword">const</span> <span class="keyword">void</span> *)(v3 + *(_QWORD *)(v5 + <span class="number">16</span>)), <span class="number">0x108</span>ui64);</span><br><span class="line">    section_table_offset = v3 + <span class="number">264</span>;</span><br><span class="line">    memmove(&amp;Dst, v4_header, <span class="number">0xF4</span>ui64);</span><br><span class="line">    v8 = v11;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">24</span>) = v23;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">25</span>) = v26;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">26</span>) = v27;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">27</span>) = v28;</span><br><span class="line">    v9 = v12;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">13</span>) = v8;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">14</span>) = v9;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">15</span>) = v13;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">32</span>) = v14;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">33</span>) = v15;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">34</span>) = v16;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">35</span>) = v17;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">36</span>) = v18;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">37</span>) = v19;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">19</span>) = v20;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">20</span>) = v21;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">21</span>) = v22;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">22</span>) = v23;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">46</span>) = v24;</span><br><span class="line">    *((_WORD *)v4_header + <span class="number">47</span>) = v25;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">28</span>) = v29;</span><br><span class="line">    *((_DWORD *)v4_header + <span class="number">29</span>) = v30;</span><br><span class="line">    memmove(v4_header + <span class="number">120</span>, &amp;Src, <span class="number">0x80</span>ui64);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> section_table_offset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来看看load_section_tables</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">signed</span> __int64 __<span class="function">fastcall <span class="title">load_section_tables</span><span class="params">(__int64 image, __int64 iinfo, <span class="keyword">unsigned</span> <span class="keyword">int</span> offset)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 v3_image; <span class="comment">// r13</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> v4_offset; <span class="comment">// er12</span></span><br><span class="line">  <span class="keyword">int</span> v5_number_of_sections; <span class="comment">// eax</span></span><br><span class="line">  __int64 v6_iinfo; <span class="comment">// r14</span></span><br><span class="line">  __int64 v7; <span class="comment">// r15</span></span><br><span class="line">  __int64 v8; <span class="comment">// rbx</span></span><br><span class="line">  <span class="keyword">int</span> v9; <span class="comment">// esi</span></span><br><span class="line">  __int64 v10_index; <span class="comment">// rdi</span></span><br><span class="line">  __int64 v11_current_cli_section_table; <span class="comment">// rbp</span></span><br><span class="line"></span><br><span class="line">  v3_image = image;</span><br><span class="line">  v4_offset = offset;</span><br><span class="line">  v5_number_of_sections = *(<span class="keyword">unsigned</span> __int16 *)(iinfo + <span class="number">6</span>) + <span class="number">1</span>;<span class="comment">// section+1</span></span><br><span class="line">  v6_iinfo = iinfo;</span><br><span class="line">  v7 = v5_number_of_sections;</span><br><span class="line">  *(_DWORD *)(iinfo + <span class="number">248</span>) = v5_number_of_sections;<span class="comment">// cli_section_count</span></span><br><span class="line">  *(_QWORD *)(iinfo + <span class="number">256</span>) = g_try_calloc(<span class="number">40</span>i64 * v5_number_of_sections);<span class="comment">// cli_section_tables</span></span><br><span class="line">  v8 = <span class="number">0</span>i64;</span><br><span class="line">  *(_QWORD *)(v6_iinfo + <span class="number">264</span>) = g_try_calloc(<span class="number">8</span> * v7);<span class="comment">// cli_sections</span></span><br><span class="line">  <span class="keyword">if</span> ( v7 &lt;= <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>i64;</span><br><span class="line">  v9 = <span class="number">0</span>;</span><br><span class="line">  v10_index = <span class="number">0</span>i64;</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )                                   <span class="comment">// 填充cli_section_tables</span></span><br><span class="line">  &#123;</span><br><span class="line">    v11_current_cli_section_table = v10_index + *(_QWORD *)(v6_iinfo + <span class="number">256</span>);</span><br><span class="line">    <span class="keyword">if</span> ( (<span class="keyword">unsigned</span> __int64)v4_offset + <span class="number">40</span> &gt; *(<span class="keyword">unsigned</span> <span class="keyword">int</span> *)(v3_image + <span class="number">24</span>) )</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    memmove(</span><br><span class="line">      (<span class="keyword">void</span> *)(v10_index + *(_QWORD *)(v6_iinfo + <span class="number">256</span>)),</span><br><span class="line">      (<span class="keyword">const</span> <span class="keyword">void</span> *)(*(_QWORD *)(v3_image + <span class="number">16</span>) + v4_offset),</span><br><span class="line">      <span class="number">0x28</span>ui64);</span><br><span class="line">    ++v8;</span><br><span class="line">    v4_offset += <span class="number">40</span>;</span><br><span class="line">    v10_index += <span class="number">40</span>i64;</span><br><span class="line">    *(_DWORD *)(v11_current_cli_section_table + <span class="number">20</span>) += <span class="number">-0x4D4C</span>u - v9;<span class="comment">// PointerToRawData - (i+1)*0x4D4C</span></span><br><span class="line">    v9 += <span class="number">0x4D4C</span>;</span><br><span class="line">    <span class="keyword">if</span> ( v8 &gt;= v7 )</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>i64;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>i64;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数主要是用来解析SectionHeader部分的。首先可以看到在读取NumberOfSections时加上了1，然后再接着解析SectionHeader。解析SectionHeader的时候对其中的PointerToRawData也动了手脚，操作是PointerToRawData-(i+1)*0x4D4C，其中i是SectionHeader的索引（从0开始）。</p>
+<p>PEHeader部分有改动的解析就结束了，总结一下这个游戏对PEHeader的处理就是：</p>
+<p>1、修改了DosHeader和NtHeader的标志，将MZ和PE修改成了ML。</p>
+<p>2、修改了指向NtHeader的偏移值。</p>
+<p>3、将NumberOfSections减去1。</p>
+<p>4、修改了SectionHeader中的PointerToRawData。</p>
+<p>按着修改方式逆处理一下就算把PEHeader修复完了，使用010 editor的模板也能正常识别了。于是我高高兴兴的将修复后的文件再次扔进dnspy，发现事情远远没有这么简单。</p>
+<p><img src="http://tva3.sinaimg.cn/large/006juYZNly1gfz0z0v66dj30d1067aa3.jpg" alt="4"></p>
+<p>没办法，只能老老实实的接着往下看了。</p>
+<h2 id="CLIHeader部分"><a href="#CLIHeader部分" class="headerlink" title="CLIHeader部分"></a>CLIHeader部分</h2><p>这一部分就是.net CLI文件特有的部分了，在开始着手这个游戏之前我对这部分基本没有了解，只能现学现卖了。网上关于这部分的中文资料基本等于没有，只好阅读官方文档<a href="https://www.ecma-international.org/publications/standards/Ecma-335.htm" target="_blank" rel="noopener">ECMA 335</a>了，在这里我简单的介绍一下，CLI文件的概览如下</p>
+<p><img src="http://tva2.sinaimg.cn/large/006juYZNly1gfz1a92eswj309d06daa6.jpg" alt="5"></p>
+<p>可以看到除了有传统的PE文件部分之外，还有CLI特有的部分，比如CLIHeader。那这个CLIHeader位于文件中的哪里呢？答案就在PEHeader的OptionalHeader-&gt;DataDirectory[14]中，文档的说明如下</p>
+<p><img src="http://tva4.sinaimg.cn/large/006juYZNly1gfz1ln5dp4j30ps064aag.jpg" alt="6"></p>
+<p>所以我们可以在这里获取CLIHeader的RVA。再来看看CLIHeader的结构</p>
+<p><img src="http://tva3.sinaimg.cn/large/006juYZNly1gfz1nv0gq1j30pd0imacj.jpg" alt="7"></p>
+<p>其中比较重要的就是MetaData元数据了，比如程序中每个方法的IL都可以通过元数据找到，元数据的具体介绍大家可以自己百度或者阅读文档，我这个半吊子就不在这里献丑了。通过CLIHeader中的MetaData我们可以找到MetadataRoot，也就是描述Metadata几个table的地方，下面是MetadataRoot的结构</p>
+<p><img src="http://tvax2.sinaimg.cn/large/006juYZNly1gfz22vrmf2j30pn0ih0uz.jpg" alt="8"></p>
+<p>对CLI文件格式的介绍暂时到这里，有兴趣的可以自行翻阅文档，接下来回到代码当中。在执行完pe_image_load_pe_data后，mono会执行pe_image_load_cli_data来解析CLIHeader部分。通过对比发现与源码中不同的部分在load_metadata_ptrs中，mono的源码对MetadataRoot中signature的判断是这样的</p>
+<p><img src="http://tvax2.sinaimg.cn/large/006juYZNly1gfz2bkfw2yj30dr05hq30.jpg" alt="9"></p>
+<p>而游戏中的mono是这样的</p>
+<p><img src="http://tvax4.sinaimg.cn/large/006juYZNly1gfz2c9sjf2j30i1035dfu.jpg" alt="10"></p>
+<p>看了一下dll中的signature也是WSML（我是Mengluu？），与游戏中的mono对应的上。</p>
+<p>将文件中的WSML修改为BSJB后再次丢进dnspy，令人惊喜的发现可以看到东西了</p>
+<p><img src="http://tvax1.sinaimg.cn/large/006juYZNly1gfz2wd3cicj30cc0drmxp.jpg" alt="11"></p>
+<p>正当我高兴的开始准备翻阅的时候，现实又给了我当头一棒。</p>
+<p><img src="http://tvax3.sinaimg.cn/large/006juYZNly1gfz30tjjq6j31950pdgpy.jpg" alt="12"></p>
+<p>函数反编译失败了。</p>
+<h2 id="opcode部分"><a href="#opcode部分" class="headerlink" title="opcode部分"></a>opcode部分</h2><p>将反编译方式切换至IL可以发现应该是opcode被替换了</p>
+<p><img src="http://tva2.sinaimg.cn/large/006juYZNly1gfz32qqaw9j30kk0cd756.jpg" alt="13"></p>
+<p>这就麻烦了，在百度+谷歌了一段时间过后得出的结论就是通过阅读mono_method_to_ir，人肉识别出被修改的opcode与原opcode的对应关系。看了一下mono_method_to_ir的源代码，我心态瞬间崩了。</p>
+<p><img src="http://tvax4.sinaimg.cn/large/006juYZNly1gfz3694qs3j30z903dmxg.jpg" alt="14"></p>
+<p>尝试着用ida F5了一下该函数，decompile了半天才出来结果，F5出来的伪代码一眼看去接近两万行，随便改个变量名都要卡半天。没办法，只能把F5抠掉看汇编了。分析opcode没什么好讲的，纯粹就是体力活。在分析了大概几十个opcode之后才发现了规律（我太菜了），原来就是把opcode 0xB3-0xC1插到了0x00的前面，用源码中的opcode.def文件来表示的话大概就是这样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">/* GENERATED FILE, DO NOT EDIT. Edit cil-opcodes.xml instead and run &quot;make opcode.def&quot; to regenerate. */</span><br><span class="line">OPDEF(CEE_NOP, &quot;nop&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0x00, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_I1, &quot;conv.ovf.i1&quot;, Pop1, PushI, InlineNone, 0, 1, 0xFF, 0xB3, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_U1, &quot;conv.ovf.u1&quot;, Pop1, PushI, InlineNone, 0, 1, 0xFF, 0xB4, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_I2, &quot;conv.ovf.i2&quot;, Pop1, PushI, InlineNone, 0, 1, 0xFF, 0xB5, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_U2, &quot;conv.ovf.u2&quot;, Pop1, PushI, InlineNone, 0, 1, 0xFF, 0xB6, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_I4, &quot;conv.ovf.i4&quot;, Pop1, PushI, InlineNone, 0, 1, 0xFF, 0xB7, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_U4, &quot;conv.ovf.u4&quot;, Pop1, PushI, InlineNone, 0, 1, 0xFF, 0xB8, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_I8, &quot;conv.ovf.i8&quot;, Pop1, PushI8, InlineNone, 0, 1, 0xFF, 0xB9, NEXT)</span><br><span class="line">OPDEF(CEE_CONV_OVF_U8, &quot;conv.ovf.u8&quot;, Pop1, PushI8, InlineNone, 0, 1, 0xFF, 0xBA, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED50, &quot;unused50&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xBB, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED18, &quot;unused18&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xBC, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED19, &quot;unused19&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xBD, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED20, &quot;unused20&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xBE, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED21, &quot;unused21&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xBF, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED22, &quot;unused22&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xC0, NEXT)</span><br><span class="line">OPDEF(CEE_UNUSED23, &quot;unused23&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0xC1, NEXT)</span><br><span class="line">OPDEF(CEE_BREAK, &quot;break&quot;, Pop0, Push0, InlineNone, 0, 1, 0xFF, 0x01, ERROR)</span><br><span class="line">OPDEF(CEE_LDARG_0, &quot;ldarg.0&quot;, Pop0, Push1, InlineNone, 0, 1, 0xFF, 0x02, NEXT)</span><br><span class="line">OPDEF(CEE_LDARG_1, &quot;ldarg.1&quot;, Pop0, Push1, InlineNone, 1, 1, 0xFF, 0x03, NEXT)</span><br><span class="line">OPDEF(CEE_LDARG_2, &quot;ldarg.2&quot;, Pop0, Push1, InlineNone, 2, 1, 0xFF, 0x04, NEXT)</span><br><span class="line">OPDEF(CEE_LDARG_3, &quot;ldarg.3&quot;, Pop0, Push1, InlineNone, 3, 1, 0xFF, 0x05, NEXT)</span><br><span class="line">OPDEF(CEE_LDLOC_0, &quot;ldloc.0&quot;, Pop0, Push1, InlineNone, 0, 1, 0xFF, 0x06, NEXT)</span><br><span class="line">OPDEF(CEE_LDLOC_1, &quot;ldloc.1&quot;, Pop0, Push1, InlineNone, 1, 1, 0xFF, 0x07, NEXT)</span><br><span class="line">OPDEF(CEE_LDLOC_2, &quot;ldloc.2&quot;, Pop0, Push1, InlineNone, 2, 1, 0xFF, 0x08, NEXT)</span><br><span class="line">OPDEF(CEE_LDLOC_3, &quot;ldloc.3&quot;, Pop0, Push1, InlineNone, 3, 1, 0xFF, 0x09, NEXT)</span><br><span class="line">OPDEF(CEE_STLOC_0, &quot;stloc.0&quot;, Pop1, Push0, InlineNone, 0, 1, 0xFF, 0x0A, NEXT)</span><br><span class="line">OPDEF(CEE_STLOC_1, &quot;stloc.1&quot;, Pop1, Push0, InlineNone, 1, 1, 0xFF, 0x0B, NEXT)</span><br><span class="line">OPDEF(CEE_STLOC_2, &quot;stloc.2&quot;, Pop1, Push0, InlineNone, 2, 1, 0xFF, 0x0C, NEXT)</span><br><span class="line">OPDEF(CEE_STLOC_3, &quot;stloc.3&quot;, Pop1, Push0, InlineNone, 3, 1, 0xFF, 0x0D, NEXT)</span><br><span class="line">...以下省略</span><br></pre></td></tr></table></figure>
+<p>感谢作者没有完全打乱，否则不知道要看到猴年马月。</p>
+<h1 id="opcode修复"><a href="#opcode修复" class="headerlink" title="opcode修复"></a>opcode修复</h1><p>没想到这一步卡了我好久，在找了半天合适的轮子未果后（不得不说我的搜索能力实在是不太行），在坛友<a href="https://www.52pojie.cn/home.php?mod=space&amp;uid=294041" target="_blank" rel="noopener">@艾莉希雅</a> 的帮助下，我找到了ilasm和ildasm这两个工具，可以在github的coreclr里找到这两个工具的源码。首先修改源码中的opcode.def为上面提到的样子之后编译ildasm，用修改过的ildasm反编译游戏的dll文件为IL，再用正常的ilasm编译刚才生成的IL，即可得到opcode正确的dll文件。将这个新的dll拖入dnspy后即可正常反编译。</p>
+<p><img src="http://tvax3.sinaimg.cn/large/006juYZNly1gfz3wwgteoj31950pdgpl.jpg" alt="15"></p>
+<p>至此，这个游戏的dll文件应该就被正常解密了</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>通过这个unity游戏的逆向学习了一波CLI文件，并且亲自分析了一遍opcode（以前都是云的），感觉收获还蛮大的。然而解密dll后顿时索然无味，为啥不好好玩游戏呢，然后就没有然后了。还有，关于替换opcode这一点我很好奇大家都是怎么做的，希望各位不吝赐教。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/06/WFP框架学习笔记/" rel="next" title="WFP框架学习笔记">
+                <i class="fa fa-chevron-left"></i> WFP框架学习笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/07/03/VBS-HyperGuard/" rel="prev" title="VBS & HyperGuard">
+                VBS & HyperGuard <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#探秘"><span class="nav-number">1.</span> <span class="nav-text">探秘</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解密"><span class="nav-number">2.</span> <span class="nav-text">解密</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PEHeader部分"><span class="nav-number">2.1.</span> <span class="nav-text">PEHeader部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CLIHeader部分"><span class="nav-number">2.2.</span> <span class="nav-text">CLIHeader部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#opcode部分"><span class="nav-number">2.3.</span> <span class="nav-text">opcode部分</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#opcode修复"><span class="nav-number">3.</span> <span class="nav-text">opcode修复</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结语"><span class="nav-number">4.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

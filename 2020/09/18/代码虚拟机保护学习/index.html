@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="虚拟机架构基于栈的（Stack-based）基于栈的虚拟机主要通过栈来执行操作，比如两个数字20和7相加可以用如下方式进行：  步骤：  POP 20 POP 7 ADD 20,7,result PUSH result  基于栈的优点：  操作数由栈指针隐式寻址，虚拟机不需要显式地知道操作数地址 平均指令长度更短">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码虚拟机保护学习">
+<meta property="og:url" content="http://sup817ch.github.io/2020/09/18/代码虚拟机保护学习/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="虚拟机架构基于栈的（Stack-based）基于栈的虚拟机主要通过栈来执行操作，比如两个数字20和7相加可以用如下方式进行：  步骤：  POP 20 POP 7 ADD 20,7,result PUSH result  基于栈的优点：  操作数由栈指针隐式寻址，虚拟机不需要显式地知道操作数地址 平均指令长度更短">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://markfaction.files.wordpress.com/2012/07/stackadd_thumb.png?w=356&h=133&zoom=2">
+<meta property="og:image" content="https://markfaction.files.wordpress.com/2012/07/registeradd_thumb.png?w=456&h=224&zoom=2">
+<meta property="og:updated_time" content="2020-12-24T02:28:41.592Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="代码虚拟机保护学习">
+<meta name="twitter:description" content="虚拟机架构基于栈的（Stack-based）基于栈的虚拟机主要通过栈来执行操作，比如两个数字20和7相加可以用如下方式进行：  步骤：  POP 20 POP 7 ADD 20,7,result PUSH result  基于栈的优点：  操作数由栈指针隐式寻址，虚拟机不需要显式地知道操作数地址 平均指令长度更短">
+<meta name="twitter:image" content="https://markfaction.files.wordpress.com/2012/07/stackadd_thumb.png?w=356&h=133&zoom=2">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2020/09/18/代码虚拟机保护学习/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>代码虚拟机保护学习 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/09/18/代码虚拟机保护学习/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">代码虚拟机保护学习
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-18 13:29:50" itemprop="dateCreated datePublished" datetime="2020-09-18T13:29:50+08:00">2020-09-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-24 10:28:41" itemprop="dateModified" datetime="2020-12-24T10:28:41+08:00">2020-12-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="虚拟机架构"><a href="#虚拟机架构" class="headerlink" title="虚拟机架构"></a>虚拟机架构</h1><h2 id="基于栈的（Stack-based）"><a href="#基于栈的（Stack-based）" class="headerlink" title="基于栈的（Stack-based）"></a>基于栈的（Stack-based）</h2><p>基于栈的虚拟机主要通过栈来执行操作，比如两个数字20和7相加可以用如下方式进行：</p>
+<p><img src="https://markfaction.files.wordpress.com/2012/07/stackadd_thumb.png?w=356&amp;h=133&amp;zoom=2" alt=""></p>
+<p>步骤：</p>
+<ol>
+<li>POP 20</li>
+<li>POP 7</li>
+<li>ADD 20,7,result</li>
+<li>PUSH result</li>
+</ol>
+<p>基于栈的优点：</p>
+<ol>
+<li>操作数由栈指针隐式寻址，虚拟机不需要显式地知道操作数地址</li>
+<li>平均指令长度更短</li>
+</ol>
+<a id="more"></a>
+<h2 id="基于寄存器的（Register-based）"><a href="#基于寄存器的（Register-based）" class="headerlink" title="基于寄存器的（Register-based）"></a>基于寄存器的（Register-based）</h2><p>基于寄存器的虚拟机的指令的操作数是在指令中显式寻址，也就是说指令需要包含操作数的地址（寄存器），比如两个数字5和30相加可以用如下方式进行：</p>
+<p><img src="https://markfaction.files.wordpress.com/2012/07/registeradd_thumb.png?w=456&amp;h=224&amp;zoom=2" alt=""></p>
+<p>步骤：</p>
+<ol>
+<li>ADD R1, R2, R3 ;        # R1和R2的值相加，并将结果存到R3    Z中</li>
+</ol>
+<p>基于寄存器的优点：</p>
+<ol>
+<li>没有压入和弹出栈的开销，VM指令执行得更快</li>
+<li>可以存储表达式的计算结果到寄存器中，当相同的表达式再次出现时可以直接使用，减少了再次计算的开销</li>
+</ol>
+<h1 id="VMProtect-1-81-Demo分析"><a href="#VMProtect-1-81-Demo分析" class="headerlink" title="VMProtect 1.81 Demo分析"></a>VMProtect 1.81 Demo分析</h1><p>VMP 1.81 demo的虚拟机架构是基于栈的，未经处理的代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.text:00401000 sub_401000      proc near               ; CODE XREF: start↓p</span><br><span class="line">.text:00401000                 mov     eax, dword_403000</span><br><span class="line">.text:00401005                 add     eax, 12345678h</span><br><span class="line">.text:0040100A                 sub     eax, 12345678h</span><br><span class="line">.text:0040100F                 mov     dword_403000, eax</span><br><span class="line">.text:00401014                 retn</span><br><span class="line">.text:00401014 sub_401000      endp</span><br></pre></td></tr></table></figure>
+<p>经VMP虚拟化后的代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.text:00401000 sub_401000      proc near               ; CODE XREF: start↓p</span><br><span class="line">.text:00401000                 push    offset vm_data</span><br><span class="line">.text:00401005                 call    vm_entry</span><br><span class="line">.text:0040100A</span><br><span class="line">.text:0040100A loc_40100A:                             ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.text:0040100A                                         ; DATA XREF: .vmp0:00404294↓o ...</span><br><span class="line">.text:0040100A                 mov     esi, [ebp+0]</span><br><span class="line">.text:0040100D                 add     ebp, 4</span><br><span class="line">.text:00401010                 jmp     loc_40474E</span><br><span class="line">.text:00401010 sub_401000      endp</span><br></pre></td></tr></table></figure>
+<h2 id="VMP结构"><a href="#VMP结构" class="headerlink" title="VMP结构"></a>VMP结构</h2><ul>
+<li><strong>VM_DATA</strong> 虚拟机字节码</li>
+<li><strong>VM_EIP</strong> 指向虚拟机字节码的某个地址，在VMP中为ESI</li>
+<li><strong>VM_CONTEXT</strong> 虚拟机上下文，在VMP中为EDI</li>
+<li><strong>VM_STACK</strong> 虚拟栈，在VMP中EBP就是虚拟栈的栈顶指针</li>
+</ul>
+<h2 id="vm-entry"><a href="#vm-entry" class="headerlink" title="vm_entry"></a>vm_entry</h2><p>虚拟机的入口，代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:0040472C                 push    esi</span><br><span class="line">.vmp0:0040472D                 push    edi</span><br><span class="line">.vmp0:0040472E                 push    esp</span><br><span class="line">.vmp0:0040472F                 push    ebx</span><br><span class="line">.vmp0:00404730                 push    eax</span><br><span class="line">.vmp0:00404731                 push    edx</span><br><span class="line">.vmp0:00404732                 push    ebp</span><br><span class="line">.vmp0:00404733                 pushf</span><br><span class="line">.vmp0:00404734                 push    ecx</span><br><span class="line">.vmp0:00404735                 push    ds:reloc</span><br><span class="line">.vmp0:0040473B                 push    0</span><br><span class="line">.vmp0:00404740                 mov     esi, [esp+2Ch+arg_0] ; vm_data</span><br><span class="line">.vmp0:00404744                 mov     ebp, esp        ; 虚拟栈栈顶指针</span><br><span class="line">.vmp0:00404746                 sub     esp, 0C0h       ; 分配虚拟栈和虚拟机上下文空间</span><br><span class="line">.vmp0:0040474C                 mov     edi, esp        ; 虚拟机上下文</span><br><span class="line">.vmp0:0040474E</span><br><span class="line">.vmp0:0040474E loc_40474E:                             ; CODE XREF: sub_401000+10↑j</span><br><span class="line">.vmp0:0040474E                 add     esi, [ebp+0]</span><br><span class="line">.vmp0:00404751</span><br><span class="line">.vmp0:00404751 vm_dispatcher:                          ; CODE XREF: vm_entry-722↑j</span><br><span class="line">.vmp0:00404751                                         ; vm_entry-718↑j ...</span><br><span class="line">.vmp0:00404751                 mov     al, [esi]</span><br><span class="line">.vmp0:00404753                 movzx   eax, al</span><br><span class="line">.vmp0:00404756                 inc     esi</span><br><span class="line">.vmp0:00404757                 jmp     ds:handlers[eax*4]</span><br></pre></td></tr></table></figure>
+<p>可以看到虚拟机入口先保存了各种寄存器，并为虚拟栈和虚拟机上下文开辟了空间，然后读取vm_data准备进入vm_handler。</p>
+<h2 id="vm-handler"><a href="#vm-handler" class="headerlink" title="vm_handler"></a>vm_handler</h2><p>所有的handler入口存储在一张表中，根据vm opcode即可进入对应的handler，下面分析几个handler</p>
+<p><strong>立即数压栈</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:0040462B vPushImm4:                              ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.vmp0:0040462B                                         ; DATA XREF: .vmp0:00404240↑o ...</span><br><span class="line">.vmp0:0040462B                 mov     eax, [esi]      ; 读取立即数</span><br><span class="line">.vmp0:0040462D                 sub     ebp, 4</span><br><span class="line">.vmp0:00404630                 lea     esi, [esi+4]    ; vEIP + 4</span><br><span class="line">.vmp0:00404633                 mov     [ebp+0], eax    ; 压入虚拟栈中</span><br><span class="line">.vmp0:00404636                 jmp     loc_40400F</span><br></pre></td></tr></table></figure>
+<p><strong>寄存器压栈</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:004045AF vPushReg4:                              ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.vmp0:004045AF                                         ; DATA XREF: .vmp0:handlers↑o ...</span><br><span class="line">.vmp0:004045AF                 and     al, 3Ch         ; al &amp; 0x3C = 寄存器在虚拟机上下文中的位置</span><br><span class="line">.vmp0:004045B2                 mov     edx, [edi+eax]  ; 获取虚拟机寄存器的值</span><br><span class="line">.vmp0:004045B5                 sub     ebp, 4</span><br><span class="line">.vmp0:004045B8                 mov     [ebp+0], edx    ; 压入虚拟栈中</span><br><span class="line">.vmp0:004045BB                 jmp     loc_40400F</span><br></pre></td></tr></table></figure>
+<p><strong>寄存器出栈</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:00404058 vPopReg4:                               ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.vmp0:00404058                                         ; DATA XREF: .vmp0:004040A4↓o ...</span><br><span class="line">.vmp0:00404058                 and     al, 3Ch</span><br><span class="line">.vmp0:0040405B                 mov     edx, [ebp+0]</span><br><span class="line">.vmp0:0040405E                 add     ebp, 4</span><br><span class="line">.vmp0:00404061                 mov     [edi+eax], edx</span><br><span class="line">.vmp0:00404064                 jmp     vm_dispatcher</span><br></pre></td></tr></table></figure>
+<p><strong>读取内存</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:00404069 vReadMemSs4:                            ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.vmp0:00404069                                         ; DATA XREF: .vmp0:00404120↓o ...</span><br><span class="line">.vmp0:00404069                 mov     eax, [ebp+0]    ; 获取栈顶作为读取的地址</span><br><span class="line">.vmp0:0040406C                 mov     eax, ss:[eax]</span><br><span class="line">.vmp0:0040406F                 mov     [ebp+0], eax    ; 将读取到的值写回栈顶</span><br><span class="line">.vmp0:00404072                 jmp     vm_dispatcher</span><br></pre></td></tr></table></figure>
+<p><strong>写入内存</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:004045D8 vWriteMemSs4:                           ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.vmp0:004045D8                                         ; DATA XREF: .vmp0:004041B0↑o ...</span><br><span class="line">.vmp0:004045D8                 mov     eax, [ebp+0]    ; 获取栈顶为写入的地址</span><br><span class="line">.vmp0:004045DB                 mov     edx, [ebp+4]    ; 获取次栈顶为写入的值</span><br><span class="line">.vmp0:004045DE                 add     ebp, 8</span><br><span class="line">.vmp0:004045E1                 mov     ss:[eax], edx</span><br><span class="line">.vmp0:004045E4                 jmp     vm_dispatcher</span><br></pre></td></tr></table></figure>
+<p><strong>返回（退出虚拟机）</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:0040408E vRet:                                   ; CODE XREF: vm_entry+2B↓j</span><br><span class="line">.vmp0:0040408E                                         ; DATA XREF: .vmp0:004042A4↓o ...</span><br><span class="line">.vmp0:0040408E                 mov     esp, ebp</span><br><span class="line">.vmp0:00404090                 pop     edx</span><br><span class="line">.vmp0:00404091                 pop     ebx</span><br><span class="line">.vmp0:00404092                 pop     ecx</span><br><span class="line">.vmp0:00404093                 popf</span><br><span class="line">.vmp0:00404094                 pop     ebp</span><br><span class="line">.vmp0:00404095                 pop     edx</span><br><span class="line">.vmp0:00404096                 pop     eax</span><br><span class="line">.vmp0:00404097                 pop     ebx</span><br><span class="line">.vmp0:00404098                 pop     esi</span><br><span class="line">.vmp0:00404099                 pop     edi</span><br><span class="line">.vmp0:0040409A                 pop     esi</span><br><span class="line">.vmp0:0040409B                 retn</span><br></pre></td></tr></table></figure>
+<p>从上面可以看出所有需要抬升栈顶的handler结束后都不是直接返回到vm_dispatcher，而是走到了loc_40400F，代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">.vmp0:0040400F loc_40400F:                             ; CODE XREF: vm_entry-6D9↓j</span><br><span class="line">.vmp0:0040400F                                         ; vm_entry-6A3↓j ...</span><br><span class="line">.vmp0:0040400F                 lea     eax, [edi+50h]  ; 虚拟栈的stack limit，vm_context和vm_stack中间还有一部分缓冲区</span><br><span class="line">.vmp0:00404012                 cmp     ebp, eax        ; 判断虚拟栈栈顶指针是否越界，即是否栈溢出</span><br><span class="line">.vmp0:00404014                 ja      vm_dispatcher   ; 若没有超过stack limit则返回vm_dispatcher</span><br><span class="line">.vmp0:0040401A                 mov     edx, esp        ; edx = 真实栈栈顶</span><br><span class="line">.vmp0:0040401C                 lea     ecx, [edi+40h]</span><br><span class="line">.vmp0:0040401F                 sub     ecx, edx        ; ecx = edi+0x40-edx</span><br><span class="line">.vmp0:00404021                 lea     eax, [ebp-80h]</span><br><span class="line">.vmp0:00404024                 and     al, 0FCh</span><br><span class="line">.vmp0:00404027                 sub     eax, ecx        ; eax = ((ebp-0x80)&amp;0xFC)-(edi+0x40-edx) 开辟虚拟栈空间</span><br><span class="line">.vmp0:00404029                 mov     esp, eax</span><br><span class="line">.vmp0:0040402B                 pushf                   ; 保存eflags</span><br><span class="line">.vmp0:0040402C                 push    esi             ; 保存vEIP</span><br><span class="line">.vmp0:0040402D                 mov     esi, edx</span><br><span class="line">.vmp0:0040402F                 lea     edi, [eax+ecx-40h]</span><br><span class="line">.vmp0:00404033                 push    edi             ; 保存新的vm_context位置</span><br><span class="line">.vmp0:00404034                 mov     edi, eax</span><br><span class="line">.vmp0:00404036                 cld</span><br><span class="line">.vmp0:00404037                 rep movsb               ; 将vm_context以及真实栈的数据填充回新的栈中</span><br><span class="line">.vmp0:00404039                 pop     edi             ; 恢复vm_context</span><br><span class="line">.vmp0:0040403A                 pop     esi             ; 恢复vEIP</span><br><span class="line">.vmp0:0040403B                 popf                    ; 恢复eflags</span><br><span class="line">.vmp0:0040403C                 jmp     vm_dispatcher</span><br></pre></td></tr></table></figure>
+<p>VMP在执行的过程中会判断虚拟栈空间是否足够，如果不够会动态开辟栈空间，这也就解释了为什么一开始只分配了0xC0的栈空间。</p>
+<h2 id="vm-data"><a href="#vm-data" class="headerlink" title="vm_data"></a>vm_data</h2><p>站在巨人的肩膀上，直接贴大佬的分析</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">vPopReg4        R3           ; R3 = 0   </span><br><span class="line">vPushImm4       0x765da981   ; </span><br><span class="line">vAdd4                        ; </span><br><span class="line">vPopReg4        R7           ; R7 = eflag</span><br><span class="line">vPopReg4        R6           ; R6 = 0x765da981</span><br><span class="line">vPopReg4        R2           ; R2 = ECX</span><br><span class="line">vPopReg4        R15          ; R15 = EFLAG</span><br><span class="line">vPopReg4        R11          ; R11 = EBP</span><br><span class="line">vPopReg4        R9           ; R9 = EDX</span><br><span class="line">vPopReg4        R13          ; R13 = EAX</span><br><span class="line">vPopReg4        R14          ; R14 = EBX</span><br><span class="line">vPopReg4        R10          ; R10 = ESP</span><br><span class="line">vPopReg4        R4           ; R4 = EDI</span><br><span class="line">vPopReg4        R0           ; R0 = ESI</span><br><span class="line">vPopReg4        R1           ; push/call 的返回地址 0x40100A</span><br><span class="line">vPopReg4        R8           ; push 的值 即 vm_data 0x404781</span><br><span class="line"></span><br><span class="line">// mov     eax, dword_403000</span><br><span class="line">vPushImm4       0x403000</span><br><span class="line">vReadMemDs4</span><br><span class="line">vPopReg4        R5           ; R5 = [0x403000]</span><br><span class="line"></span><br><span class="line">// add     eax, 12345678h</span><br><span class="line">vPushImm4       0x12345678</span><br><span class="line">vPushReg4       R5           ; </span><br><span class="line">vAdd4                        ; R5 + 0x12345678</span><br><span class="line">vPopReg4        R7           ; add_flag</span><br><span class="line">vPopReg4        R13          ; R13 = R5 + 0x12345678</span><br><span class="line"></span><br><span class="line">// sub     eax, 12345678h</span><br><span class="line"></span><br><span class="line">// 关键计算公式如下：</span><br><span class="line">// not(a) = nor(a, a)</span><br><span class="line">// and(a, b) = nor(not(a), not(b))</span><br><span class="line">// sub(a, b) = not(not(a) + b) = nor(not(a) + b, not(a) + b) = nor(nor(a, a) + b, nor(a, a) + b) </span><br><span class="line">// 0xfffff7ea = not(0x815)</span><br><span class="line">// not_flag(a) = nor_flag(a, a)</span><br><span class="line">// and_flag(a, b) = nor_flag(a, not(b))</span><br><span class="line">// sub_flag(a, b) = and(FFFFF7EA, not_flag(not(a) + b)) + and(0x815 , add_flag(not(a), b))</span><br><span class="line"></span><br><span class="line">vPushImm4       0x12345678   ; 0x12345678 是 b</span><br><span class="line">vPushReg4       R13          ; R13 是 a</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4                  ; 栈顶2个 a</span><br><span class="line">vNor4                        ; nor(a, a) = not(a)</span><br><span class="line">vPopReg4        R1           ; R1 = not_flag(a)</span><br><span class="line">vAdd4                        ; not(a) + b </span><br><span class="line">vPopReg4        R15          ; R15 = add_flag(not(a) + b)</span><br><span class="line">vPushEBP                     ; </span><br><span class="line">vReadMemSs4                  ; 栈顶2个 not(a) + b </span><br><span class="line">vNor4                        ; not(not(a)+b) = sub(a,b)</span><br><span class="line">vPopReg4        R8           ; R8 = not_flag(not(a) + b)</span><br><span class="line">vPopReg4        R1           ; R1 = sub(a,b) = R13 - 0x12345678</span><br><span class="line">vPushReg4       R15          ; R15 = add_flag(not(a) + b)</span><br><span class="line">vPushEBP                    </span><br><span class="line">vReadMemSs4                 </span><br><span class="line">vNor4                        ; not(R15) = not(add_flag(not(a) + b))</span><br><span class="line">vPopReg4        R5           ; flag - 无用</span><br><span class="line">vPushImmSx2     0xfffff7ea   </span><br><span class="line">vNor4                        ; nor(0xfffff7ea, R14) = and (0x815, R15) = and(0x815, add_flag(not(a) + b))</span><br><span class="line">vPopReg4        R7           ; R7 = and(0x815, add_flag(not(a) + b)) sub_flag 右半部分</span><br><span class="line">vPushReg4       R8           </span><br><span class="line">vPushReg4       R8</span><br><span class="line">vNor4                        ; not(R8) = not(not_flag(not(a) + b))</span><br><span class="line">vPopReg4        R12          ; flag - 无用</span><br><span class="line">vPushImmSx2     0x815        </span><br><span class="line">vNor4                        ; nor(0x815, not(R8)) = and(0xfffff7ea, R8) = and(FFFFF7EA, not_flag(not(a) + b))</span><br><span class="line">vPopReg4        R12          ; flag - 无用</span><br><span class="line">vAdd4                        ; add</span><br><span class="line">vPopReg4        R12          ; flag - 无用</span><br><span class="line">vPopReg4        R13          ; R13 = and(FFFFF7EA, not_flag(not(a) + b)) + and(0x815 , add_flag(not(a), b)) = sub_flag(a, b)</span><br><span class="line"></span><br><span class="line">// mov     dword_403000, eax</span><br><span class="line">vPushReg4       R1</span><br><span class="line">vPushImm4       0x403000     ; [0x403000] = R1</span><br><span class="line">vWriteMemDs4</span><br><span class="line"></span><br><span class="line">// ret</span><br><span class="line">vPushReg4       R0           ; ESI</span><br><span class="line">vPushReg4       R4           ; EDI</span><br><span class="line">vPushReg4       R8           ; flag（无用） </span><br><span class="line">vPushReg4       R14          ; EBX</span><br><span class="line">vPushReg4       R1           ; RAX</span><br><span class="line">vPushReg4       R9           ; EDX</span><br><span class="line">vPushReg4       R11          ; EBP</span><br><span class="line">vPushReg4       R13          ; sub_flag</span><br><span class="line">vPushReg4       R2           ; ECX</span><br><span class="line">vPushReg4       R7           ; flag（无用） </span><br><span class="line">vPushReg4       R0           ; ESI（无用） </span><br><span class="line">vRet</span><br></pre></td></tr></table></figure>
+<p>vm_data一开始先将vm_entry压入栈中的寄存器全部存到vm_context，由此也能确定vm_context与原始寄存器的对应关系，vm_data的结束部分也与vRet可以对应得上。</p>
+<h1 id="VMProtect-1-8-分析"><a href="#VMProtect-1-8-分析" class="headerlink" title="VMProtect 1.8 分析"></a>VMProtect 1.8 分析</h1><p>由于没有找到VMP 1.81 Demo，只找到了由其加壳过的程序，指令的丰富程度不够，于是找到了VMP 1.8正式版进行分析，未经处理的代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">.text:00401000 sub_401000      proc near               ; CODE XREF: start↓p</span><br><span class="line">.text:00401000                 mov     eax, dword_403000</span><br><span class="line">.text:00401005                 add     eax, 12345678h</span><br><span class="line">.text:0040100A                 sub     eax, 12345678h</span><br><span class="line">.text:0040100F                 mov     dword_403000, eax</span><br><span class="line">.text:00401014                 cmp     eax, 12345678h</span><br><span class="line">.text:00401019                 jz      short locret_401020</span><br><span class="line">.text:0040101B                 mov     eax, dword_403000</span><br><span class="line">.text:00401020</span><br><span class="line">.text:00401020 locret_401020:                          ; CODE XREF: sub_401000+19↑j</span><br><span class="line">.text:00401020                 retn</span><br><span class="line">.text:00401020 sub_401000      endp</span><br></pre></td></tr></table></figure>
+<p>经VMP虚拟化后的代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">.text:00401000 sub_401000      proc near               ; CODE XREF: start↓p</span><br><span class="line">.text:00401000</span><br><span class="line">.text:00401000 var_8           = dword ptr -8</span><br><span class="line">.text:00401000 var_4           = dword ptr -4</span><br><span class="line">.text:00401000</span><br><span class="line">.text:00401000 ; FUNCTION CHUNK AT .UPX1:00406174 SIZE 0000001F BYTES</span><br><span class="line">.text:00401000</span><br><span class="line">.text:00401000                 push    80E461h</span><br><span class="line">.text:00401005                 call    sub_406BF9</span><br><span class="line">.text:0040100A                 pushf</span><br><span class="line">.text:0040100B                 jmp     loc_406174</span><br><span class="line">.text:0040100B sub_401000      endp ; sp-analysis failed</span><br><span class="line">.text:0040100B</span><br><span class="line">.text:00401010</span><br><span class="line">.text:00401010 ; =============== S U B R O U T I N E =======================================</span><br><span class="line">.text:00401010</span><br><span class="line">.text:00401010</span><br><span class="line">.text:00401010 sub_401010      proc near               ; CODE XREF: sub_406E3D-9D4↓p</span><br><span class="line">.text:00401010</span><br><span class="line">.text:00401010 arg_4C          = dword ptr  50h</span><br><span class="line">.text:00401010</span><br><span class="line">.text:00401010 ; FUNCTION CHUNK AT .UPX1:00405995 SIZE 00000005 BYTES</span><br><span class="line">.text:00401010</span><br><span class="line">.text:00401010                 mov     [esp+arg_4C], eax</span><br><span class="line">.text:00401014                 jmp     loc_405995</span><br><span class="line">.text:00401014 sub_401010      endp</span><br><span class="line">.text:00401014</span><br><span class="line">.text:00401019</span><br><span class="line">.text:00401019 ; =============== S U B R O U T I N E =======================================</span><br><span class="line">.text:00401019</span><br><span class="line">.text:00401019</span><br><span class="line">.text:00401019 sub_401019      proc near               ; CODE XREF: .UPX1:00406DEC↓p</span><br><span class="line">.text:00401019                 call    sub_4055CD</span><br><span class="line">.text:0040101E                 fdivr   qword ptr [ebp-0Fh]</span><br><span class="line">.text:0040101E sub_401019      endp</span><br></pre></td></tr></table></figure>
+<p>可以看到比demo版本抽象了很多</p>
+<h2 id="vm-dispatcher"><a href="#vm-dispatcher" class="headerlink" title="vm_dispatcher"></a>vm_dispatcher</h2><p>正式版的虚拟机部分做了比较多的混淆，通过调试器的trace功能找到指令执行次数最多的序列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">; base = 0x1E0000</span><br><span class="line">0x1e6c7e     sub al, ch</span><br><span class="line">0x1e6c80     adc al, 0xab</span><br><span class="line">0x1e6c82     sar al, cl</span><br><span class="line">0x1e6c84     mov al, byte ptr [esi]                 ;取vm_data</span><br><span class="line">0x1e6c86     rcr dh, 7</span><br><span class="line">0x1e6c89     shld dx, si, 0xb</span><br><span class="line">0x1e6c8e     jmp 0x1e66b7</span><br><span class="line">0x1e66b7     shld dx, bx, cl</span><br><span class="line">0x1e66bb     sub al, bl                             ;al=al-bl</span><br><span class="line">0x1e66bd     dec dh</span><br><span class="line">0x1e66bf     rcl dl, 2</span><br><span class="line">0x1e66c2     stc</span><br><span class="line">0x1e66c3     cmc</span><br><span class="line">0x1e66c4     lea esi, [esi + 1]</span><br><span class="line">0x1e66c7     and dx, dx</span><br><span class="line">0x1e66ca     rol dx, 0xd</span><br><span class="line">0x1e66ce     add al, 0xbc                           ;al=al-bl+0xbc</span><br><span class="line">0x1e66d0     rcl dh, 1</span><br><span class="line">0x1e66d2     btc edx, 0xf</span><br><span class="line">0x1e66d6     not al</span><br><span class="line">0x1e66d8     stc</span><br><span class="line">0x1e66d9     clc</span><br><span class="line">0x1e66da     push 0xec0c3952</span><br><span class="line">0x1e66df     ror al, 2                              ;al=ror(al-bl+0xbc,2)</span><br><span class="line">0x1e66e2     not dx</span><br><span class="line">0x1e66e5     stc</span><br><span class="line">0x1e66e6     sub bl, al                             ;bl=bl-ror(al-bl+0xbc,2)</span><br><span class="line">0x1e66e8     bswap dx</span><br><span class="line">0x1e66eb     movzx eax, al</span><br><span class="line">0x1e66ee     movsx dx, bl</span><br><span class="line">0x1e66f2     movzx edx, bl</span><br><span class="line">0x1e66f5     movsx dx, bl</span><br><span class="line">0x1e66f9     rol dx, cl</span><br><span class="line">0x1e66fc     mov edx, dword ptr [eax*4 + 0x1e67ae]  ;&lt;------经典dispatcher</span><br><span class="line">0x1e6703     pushal</span><br><span class="line">0x1e6704     cmc</span><br><span class="line">0x1e6705     pushal</span><br><span class="line">0x1e6706     ror edx, 8                             ;&lt;------</span><br><span class="line">0x1e6709     jmp 0x1e664e</span><br><span class="line">0x1e664e     jmp 0x1e5883</span><br><span class="line">0x1e5883     bt ax, si</span><br><span class="line">0x1e5887     test bl, 0xfd</span><br><span class="line">0x1e588a     add edx, 0xffde0000                    ;&lt;------重定位，可在重定位表中找到</span><br><span class="line">0x1e5890     jmp 0x1e638c</span><br><span class="line">0x1e638c     mov word ptr [esp + 4], 0xbd6d</span><br><span class="line">0x1e6393     mov dword ptr [esp + 0x40], edx        ;&lt;------</span><br><span class="line">0x1e6397     push 0xe6e87eb3</span><br><span class="line">0x1e639c     mov dword ptr [esp], 0x129a39d1</span><br><span class="line">0x1e63a3     pushfd</span><br><span class="line">0x1e63a4     push dword ptr [esp + 0x48]            ;&lt;------</span><br><span class="line">0x1e63a8     ret 0x4c                               ;&lt;------</span><br></pre></td></tr></table></figure>
+<p>可以看出这是一个比较典型的dispatcher，并且在箭头部分对handler的地址进行了解密和进入，写个脚本处理一下handler table方便分析</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> idaapi <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> idc <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> c_int</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ror</span><span class="params">(int_value,k,bit = <span class="number">32</span>)</span>:</span></span><br><span class="line">    bit_string = <span class="string">'&#123;:0%db&#125;'</span> % bit</span><br><span class="line">    bin_value = bit_string.format(int_value)</span><br><span class="line">    bin_value = bin_value[-k:] + bin_value[:-k]</span><br><span class="line">    int_value = int(bin_value,<span class="number">2</span>) </span><br><span class="line">    <span class="keyword">return</span> int_value</span><br><span class="line"></span><br><span class="line">addr = <span class="number">0x4067AE</span></span><br><span class="line">end = addr + <span class="number">4</span>*<span class="number">256</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> addr &lt; end:</span><br><span class="line">    handler = get_wide_dword(addr)</span><br><span class="line">    handler = ror(handler,<span class="number">8</span>)</span><br><span class="line">    patch_dword(addr,handler)</span><br><span class="line">    addr += <span class="number">4</span></span><br><span class="line"></span><br><span class="line">patch_bytes(<span class="number">0x00406706</span>,<span class="string">'\x90'</span>*<span class="number">3</span>) <span class="comment">#解密部分nop</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'decrypt handler addr'</span></span><br></pre></td></tr></table></figure>
+<h2 id="vm-handler-1"><a href="#vm-handler-1" class="headerlink" title="vm_handler"></a>vm_handler</h2><p>由于加了混淆，静态分析会变得比较痛苦，通过trace记录可以减轻人工分析的复杂程度，举个例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">0x1e5f20     cmc</span><br><span class="line">0x1e5f21     mov eax, dword ptr [ebp]       ;取栈顶值</span><br><span class="line">0x1e5f24     call 0x1e5950</span><br><span class="line">0x1e5950     call 0x1e67a4</span><br><span class="line">0x1e67a4     clc</span><br><span class="line">0x1e67a5     pushal</span><br><span class="line">0x1e67a6     add dword ptr [ebp + 4], eax   ;与次栈顶相加</span><br><span class="line">0x1e67a9     call 0x1e5f15</span><br><span class="line">0x1e5f15     call 0x1e6528</span><br><span class="line">0x1e6528     mov byte ptr [esp + 0xc], al</span><br><span class="line">0x1e652c     push 0x68702aba</span><br><span class="line">0x1e6531     pushfd                         ;保存eflags</span><br><span class="line">0x1e6532     pop dword ptr [esp + 0x30]</span><br><span class="line">0x1e6536     call 0x1e5e8e</span><br><span class="line">0x1e5e8e     push dword ptr [esp + 0x34]</span><br><span class="line">0x1e5e92     pop dword ptr [ebp]            ;存储eflags</span><br><span class="line">0x1e5e95     pushfd</span><br><span class="line">0x1e5e96     lea esp, [esp + 0x3c]</span><br><span class="line">0x1e5e9a     jmp 0x1e6c7e</span><br></pre></td></tr></table></figure>
+<p>将注意力集中在ebp有关的部分就能很快确定关键指令，通过分析可知该handler实现的是相加功能。接下来挑几个demo中没看到的讲</p>
+<p><strong>跳转（设置vEIP）</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">0x1e6d28     adc si, 0xc8c6</span><br><span class="line">0x1e6d2d     bsf si, ax</span><br><span class="line">0x1e6d31     shrd si, di, cl</span><br><span class="line">0x1e6d35     mov esi, dword ptr [ebp]   ;设置vEIP，该值是未经重定位的值</span><br><span class="line">0x1e6d38     test ax, 0xab8e</span><br><span class="line">0x1e6d3c     bt eax, 1</span><br><span class="line">0x1e6d40     add ebp, 4                 ;vm_stack+4</span><br><span class="line">0x1e6d43     pushfd</span><br><span class="line">0x1e6d44     push dword ptr [esp]</span><br><span class="line">0x1e6d47     lea esp, [esp + 8]</span><br><span class="line">0x1e6d4b     jmp 0x1e6c65</span><br><span class="line">0x1e6c65     rcr bl, cl</span><br><span class="line">0x1e6c67     rcr ebx, 7</span><br><span class="line">0x1e6c6a     sub al, 0x40</span><br><span class="line">0x1e6c6c     movzx dx, dl</span><br><span class="line">0x1e6c70     mov ebx, esi</span><br><span class="line">0x1e6c72     xadd al, dh</span><br><span class="line">0x1e6c75     clc</span><br><span class="line">0x1e6c76     inc al</span><br><span class="line">0x1e6c78     sub dx, ax</span><br><span class="line">0x1e6c7b     add esi, dword ptr [ebp]   ;通过调试可知该操作是对vEIP进行重定位</span><br></pre></td></tr></table></figure>
+<h2 id="vm-data-1"><a href="#vm-data-1" class="headerlink" title="vm_data"></a>vm_data</h2><p>vm_handler中对vm_data做了一些的加解密处理，如果静态分析vm_data有一定的工作量，这里只需要分析trace就好了，execution-trace-viewer脚本如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> yapsy.IPlugin <span class="keyword">import</span> IPlugin</span><br><span class="line"><span class="keyword">from</span> core.api <span class="keyword">import</span> Api</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PluginVmpTraceHelper</span><span class="params">(IPlugin)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">execute</span><span class="params">(self, api: Api)</span>:</span></span><br><span class="line"></span><br><span class="line">        trace = api.get_visible_trace()</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> trace:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        api.print(<span class="string">''</span>)</span><br><span class="line">        </span><br><span class="line">        handler_map = &#123;</span><br><span class="line">            <span class="number">0x1e5372</span> : <span class="string">'vPopReg4'</span>,</span><br><span class="line">            <span class="number">0x1e5315</span> : <span class="string">'vPushImm4'</span>,</span><br><span class="line">            <span class="number">0x1e5f20</span> : <span class="string">'vAdd4'</span>,</span><br><span class="line">            <span class="number">0x1e5b98</span> : <span class="string">'vPushReg4'</span>,</span><br><span class="line">            <span class="number">0x1e6413</span> : <span class="string">'vReadMemDs4'</span>,</span><br><span class="line">            <span class="number">0x1e6e70</span> : <span class="string">'vNor4'</span>,</span><br><span class="line">            <span class="number">0x1e5cba</span> : <span class="string">'vPushEBP'</span>,</span><br><span class="line">            <span class="number">0x1e5f34</span> : <span class="string">'vReadMemSs4'</span>,</span><br><span class="line">            <span class="number">0x1e50d0</span> : <span class="string">'vPushImm2ext4'</span>,</span><br><span class="line">            <span class="number">0x1e527e</span> : <span class="string">'vWriteMemDs4'</span>,</span><br><span class="line">            <span class="number">0x1e6be9</span> : <span class="string">'vPushImm1ext2'</span>,</span><br><span class="line">            <span class="number">0x1e5381</span> : <span class="string">'vPushImm1ext4'</span>,</span><br><span class="line">            <span class="number">0x1e5a27</span> : <span class="string">'vShr4'</span>,</span><br><span class="line">            <span class="number">0x1e6d28</span> : <span class="string">'vJmp'</span>,</span><br><span class="line">            <span class="number">0x1e579c</span> : <span class="string">'vRet'</span></span><br><span class="line">        &#125;</span><br><span class="line">        trace_data = api.get_trace_data()</span><br><span class="line">        ip_name = trace_data.get_instruction_pointer_name()</span><br><span class="line">        <span class="keyword">if</span> ip_name <span class="keyword">not</span> <span class="keyword">in</span> trace_data.regs:</span><br><span class="line">            api.print(<span class="string">'Error. Unknown instruction pointer name.'</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        ip_index = trace_data.regs[ip_name]</span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">find_trace</span><span class="params">(trace, i, eip)</span>:</span></span><br><span class="line">            <span class="keyword">while</span> i &lt; len(trace):</span><br><span class="line">                <span class="keyword">if</span> trace[i][<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eip'</span>]] == eip:</span><br><span class="line">                    <span class="keyword">return</span> trace[i]</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">        handler = []</span><br><span class="line">        i = <span class="number">0</span></span><br><span class="line">        vm_dispatcher_end = <span class="number">0x1e63a8</span></span><br><span class="line">        api.print(<span class="string">'handler execution order'</span>)</span><br><span class="line">        <span class="keyword">while</span> i &lt; len(trace):</span><br><span class="line">            t = trace[i]</span><br><span class="line">            <span class="keyword">if</span> t[<span class="string">'regs'</span>][ip_index] == vm_dispatcher_end:</span><br><span class="line">                addr = trace[i+<span class="number">1</span>][<span class="string">'regs'</span>][ip_index]</span><br><span class="line">                pcode = handler_map[addr]</span><br><span class="line">                <span class="keyword">if</span> pcode == <span class="string">'vPopReg4'</span>:</span><br><span class="line">                    api.print(<span class="string">'%s\tR%d\t= %#x'</span> % (pcode, find_trace(trace, i, <span class="number">0x1e654e</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eax'</span>]] / <span class="number">4</span>, find_trace(trace, i, <span class="number">0x1e6551</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'edx'</span>]]))</span><br><span class="line">                <span class="keyword">elif</span> pcode == <span class="string">'vPushImm4'</span>:</span><br><span class="line">                    api.print(<span class="string">'%s\t%#x'</span> % (pcode, find_trace(trace, i, <span class="number">0x1e5cdd</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eax'</span>]]))</span><br><span class="line">                <span class="keyword">elif</span> pcode == <span class="string">'vPushReg4'</span>:</span><br><span class="line">                    api.print(<span class="string">'%s\tR%d\t= %#x'</span> % (pcode, find_trace(trace, i, <span class="number">0x1e6436</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eax'</span>]] / <span class="number">4</span>, find_trace(trace, i, <span class="number">0x1e6439</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'edx'</span>]]))</span><br><span class="line">                <span class="keyword">elif</span> pcode == <span class="string">'vPushImm2ext4'</span>:</span><br><span class="line">                    api.print(<span class="string">'%s\t%#x'</span> % (pcode, find_trace(trace, i, <span class="number">0x1e53d0</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eax'</span>]]))</span><br><span class="line">                <span class="keyword">elif</span> pcode == <span class="string">'vPushImm1ext2'</span>:</span><br><span class="line">                    api.print(<span class="string">'%s\t%#x'</span> % (pcode, find_trace(trace, i, <span class="number">0x1e6026</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eax'</span>]] &amp; <span class="number">0xffff</span>))</span><br><span class="line">                <span class="keyword">elif</span> pcode == <span class="string">'vPushImm1ext4'</span>:</span><br><span class="line">                    api.print(<span class="string">'%s\t%#x'</span> % (pcode, find_trace(trace, i, <span class="number">0x1e5e3f</span>)[<span class="string">'regs'</span>][trace_data.regs[<span class="string">'eax'</span>]]))</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    api.print(pcode)</span><br><span class="line">                <span class="keyword">if</span> addr <span class="keyword">not</span> <span class="keyword">in</span> handler:</span><br><span class="line">                    handler.append(addr)</span><br><span class="line">            i+=<span class="number">1</span></span><br><span class="line">        api.print(<span class="string">''</span>)</span><br><span class="line">        api.print(<span class="string">'unique handler'</span>)</span><br><span class="line">        <span class="keyword">for</span> addr <span class="keyword">in</span> handler:</span><br><span class="line">            api.print(hex(addr))</span><br></pre></td></tr></table></figure>
+<p>分析出来的流程如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br></pre></td><td class="code"><pre><span class="line">vPopReg4	R1	= 0xffde0000</span><br><span class="line">vPushImm4	0x29b3f9de</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R7	= 0x206</span><br><span class="line">vPopReg4	R0	= 0x29b3f9de</span><br><span class="line">vPopReg4	R3	= 0x1e1021</span><br><span class="line">vPopReg4	R10	= 0x1e1021</span><br><span class="line">vPopReg4	R12	= 0x1e1021</span><br><span class="line">vPopReg4	R6	= 0x1e1021</span><br><span class="line">vPopReg4	R7	= 0xb8fd08</span><br><span class="line">vPopReg4	R11	= 0xb8fcbc</span><br><span class="line">vPopReg4	R15	= 0x246</span><br><span class="line">vPopReg4	R14	= 0x1e1021</span><br><span class="line">vPopReg4	R13	= 0x9ed000</span><br><span class="line">vPopReg4	R4	= 0x1e100a</span><br><span class="line">vPopReg4	R2	= 0x80e461</span><br><span class="line"></span><br><span class="line">;mov     eax, dword_403000</span><br><span class="line">vPushReg4	R1	= 0xffde0000</span><br><span class="line">vPushImm4	0x403000</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R2	= 0x207</span><br><span class="line">vReadMemDs4</span><br><span class="line">vPopReg4	R8	= 0xdeadbeef</span><br><span class="line"></span><br><span class="line">;add     eax, 12345678h</span><br><span class="line">vPushReg4	R8	= 0xdeadbeef</span><br><span class="line">vPushImm4	0x12345678</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R7	= 0x292</span><br><span class="line">vPopReg4	R7	= 0xf0e21567</span><br><span class="line"></span><br><span class="line">;sub     eax, 12345678h</span><br><span class="line">vPushImm4	0x12345678</span><br><span class="line">vPushReg4	R7	= 0xf0e21567</span><br><span class="line">vPushReg4	R7	= 0xf0e21567</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R5	= 0x202</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R9	= 0x212</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R2	= 0x282</span><br><span class="line">vPopReg4	R2	= 0xdeadbeef</span><br><span class="line"></span><br><span class="line">;mov     dword_403000, eax</span><br><span class="line">;cmp     eax, 12345678h</span><br><span class="line">;jz      short locret_401020</span><br><span class="line">vPushImm4	0x95c6b72e</span><br><span class="line">vPushImm4	0x95c6b745</span><br><span class="line">vPushReg4	R2	= 0xdeadbeef</span><br><span class="line">vPushReg4	R1	= 0xffde0000</span><br><span class="line">vPushImm4	0x403000</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R7	= 0x207</span><br><span class="line">vPushImm4	0x12345678</span><br><span class="line">vPushReg4	R2	= 0xdeadbeef</span><br><span class="line">vPushReg4	R2	= 0xdeadbeef</span><br><span class="line">vNor4                           ;not(0xdeadbeef)</span><br><span class="line">vPopReg4	R4	= 0x202</span><br><span class="line">vAdd4                           ;not(0xdeadbeef)+0x12345678</span><br><span class="line">vPopReg4	R8	= 0x206</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4                     ;[ebp]=not(0xdeadbeef)+0x12345678</span><br><span class="line">vNor4                           ;not(not(0xdeadbeef)+0x12345678) = 0xdeadbeef - 0x12345678</span><br><span class="line">vPopReg4	R5	= 0x286</span><br><span class="line">vPopReg4	R7	= 0xcc796877</span><br><span class="line">vPushReg4	R8	= 0x206</span><br><span class="line">vPushReg4	R8	= 0x206</span><br><span class="line">vNor4							</span><br><span class="line">vPopReg4	R6	= 0x286</span><br><span class="line">vPushImm2ext4	0xfffff7ea</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R6	= 0x202</span><br><span class="line">vPushReg4	R5	= 0x286</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R9	= 0x282</span><br><span class="line">vPushImm2ext4	0x815</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R4	= 0x206</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R6	= 0x202</span><br><span class="line">vPopReg4	R7	= 0x286</span><br><span class="line">vWriteMemDs4</span><br><span class="line"></span><br><span class="line">vPushEBP</span><br><span class="line">vPushImm1ext2	0x4</span><br><span class="line">vPushReg4	R7	= 0x286</span><br><span class="line">vPushReg4	R7	= 0x286</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R8	= 0x282</span><br><span class="line">vPushImm1ext4	0xffffffbf</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R15	= 0x246</span><br><span class="line">vShr4</span><br><span class="line">vPopReg4	R4	= 0x246</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R8	= 0x202</span><br><span class="line">vReadMemSs4</span><br><span class="line">vPopReg4	R8	= 0x95c6b745</span><br><span class="line">vPopReg4	R15	= 0x95c6b745</span><br><span class="line">vPopReg4	R15	= 0x95c6b72e</span><br><span class="line">vPushReg4	R8	= 0x95c6b745</span><br><span class="line">vPopReg4	R4	= 0x95c6b745</span><br><span class="line">vPushReg4	R4	= 0x95c6b745</span><br><span class="line">vPushReg4	R4	= 0x95c6b745</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R6	= 0x202</span><br><span class="line">vPushImm4	0x6a793929</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R9	= 0x286</span><br><span class="line">vPushReg4	R4	= 0x95c6b745</span><br><span class="line">vPushImm4	0x9586c6d6</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R15	= 0x206</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R9	= 0x206</span><br><span class="line">vPopReg4	R6	= 0x407193      ;vJmp地址</span><br><span class="line">vPushReg4	R12	= 0x1e1021</span><br><span class="line">vPushReg4	R9	= 0x206</span><br><span class="line">vPushReg4	R11	= 0xb8fcbc</span><br><span class="line">vPushReg4	R8	= 0x95c6b745</span><br><span class="line">vPushReg4	R10	= 0x1e1021</span><br><span class="line">vPushReg4	R14	= 0x1e1021</span><br><span class="line">vPushReg4	R7	= 0x286</span><br><span class="line">vPushReg4	R13	= 0x9ed000</span><br><span class="line">vPushReg4	R3	= 0x1e1021</span><br><span class="line">vPushReg4	R2	= 0xdeadbeef</span><br><span class="line">vPushReg4	R12	= 0x1e1021</span><br><span class="line">vPushReg4	R0	= 0x29b3f9de</span><br><span class="line">vPushImm4	0xd64c0622</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R8	= 0x257</span><br><span class="line">vPushReg4	R1	= 0xffde0000</span><br><span class="line">vPushReg4	R6	= 0x407193</span><br><span class="line">vJmp</span><br><span class="line">vPopReg4	R13	= 0xffde0000</span><br><span class="line">vPushImm4	0x29b3f9de</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R12	= 0x206</span><br><span class="line">vPopReg4	R10	= 0x29b3f9de</span><br><span class="line">vPopReg4	R1	= 0x1e1021</span><br><span class="line">vPopReg4	R2	= 0xdeadbeef</span><br><span class="line">vPopReg4	R4	= 0x1e1021</span><br><span class="line">vPopReg4	R7	= 0x9ed000</span><br><span class="line">vPopReg4	R3	= 0x286</span><br><span class="line">vPopReg4	R15	= 0x1e1021</span><br><span class="line">vPopReg4	R14	= 0x1e1021</span><br><span class="line">vPopReg4	R6	= 0x95c6b745</span><br><span class="line">vPushReg4	R6	= 0x95c6b745</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R0	= 0x202</span><br><span class="line">vPushImm4	0x6a793929</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R11	= 0x286</span><br><span class="line">vPushReg4	R6	= 0x95c6b745</span><br><span class="line">vPushImm4	0x9586c6d6</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R8	= 0x206</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R0	= 0x206</span><br><span class="line">vPopReg4	R11	= 0x407193</span><br><span class="line">vPopReg4	R9	= 0xb8fcbc</span><br><span class="line">vPopReg4	R0	= 0x206</span><br><span class="line">vPopReg4	R8	= 0x1e1021</span><br><span class="line">vPushReg4	R13	= 0xffde0000</span><br><span class="line">vPushImm4	0x403000</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R8	= 0x207</span><br><span class="line">vReadMemDs4</span><br><span class="line">vPopReg4	R12	= 0xdeadbeef</span><br><span class="line">vPushImm4	0xffbfcfc3</span><br><span class="line">vPushReg4	R10	= 0x29b3f9de</span><br><span class="line">vPushReg4	R9	= 0xb8fcbc</span><br><span class="line">vPushReg4	R11	= 0x407193</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4</span><br><span class="line">vPopReg4	R8	= 0x407193</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R5	= 0x286</span><br><span class="line">vPushImm4	0x6a793929</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R6	= 0x202</span><br><span class="line">vPushReg4	R8	= 0x407193</span><br><span class="line">vPushImm4	0x9586c6d6</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R2	= 0x206</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R2	= 0x282</span><br><span class="line">vPushReg4	R14	= 0x1e1021</span><br><span class="line">vPushReg4	R15	= 0x1e1021</span><br><span class="line">vPushReg4	R3	= 0x286</span><br><span class="line">vPushReg4	R7	= 0x9ed000</span><br><span class="line">vPushReg4	R4	= 0x1e1021</span><br><span class="line">vPushReg4	R12	= 0xdeadbeef</span><br><span class="line">vPushReg4	R1	= 0x1e1021</span><br><span class="line">vPushReg4	R10	= 0x29b3f9de</span><br><span class="line">vPushImm4	0xd64c0622</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R2	= 0x257</span><br><span class="line">vPushReg4	R13	= 0xffde0000</span><br><span class="line">vPopReg4	R5	= 0xffde0000</span><br><span class="line">vPushImm4	0x29b3f9de</span><br><span class="line">vAdd4</span><br><span class="line">vPopReg4	R6	= 0x206</span><br><span class="line">vPopReg4	R6	= 0x29b3f9de</span><br><span class="line">vPopReg4	R2	= 0x1e1021</span><br><span class="line">vPopReg4	R0	= 0xdeadbeef</span><br><span class="line">vPopReg4	R1	= 0x1e1021</span><br><span class="line">vPopReg4	R4	= 0x9ed000</span><br><span class="line">vPopReg4	R12	= 0x286</span><br><span class="line">vPopReg4	R13	= 0x1e1021</span><br><span class="line">vPopReg4	R3	= 0x1e1021</span><br><span class="line">vPopReg4	R7	= 0x95c6b745</span><br><span class="line">vPushReg4	R7	= 0x95c6b745</span><br><span class="line">vPushEBP</span><br><span class="line">vReadMemSs4</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R10	= 0x202</span><br><span class="line">vPushImm4	0x6a793929</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R15	= 0x286</span><br><span class="line">vPushReg4	R7	= 0x95c6b745</span><br><span class="line">vPushImm4	0x9586c6d6</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R10	= 0x206</span><br><span class="line">vNor4</span><br><span class="line">vPopReg4	R10	= 0x206</span><br><span class="line">vPopReg4	R15	= 0x407193</span><br><span class="line">vPopReg4	R8	= 0xb8fcbc</span><br><span class="line">vPopReg4	R10	= 0x29b3f9de</span><br><span class="line">vPopReg4	R11	= 0xffbfcfc3</span><br><span class="line">vPushReg4	R4	= 0x9ed000</span><br><span class="line">vPushReg4	R13	= 0x1e1021</span><br><span class="line">vPushReg4	R12	= 0x286</span><br><span class="line">vPushReg4	R8	= 0xb8fcbc</span><br><span class="line">vPushReg4	R0	= 0xdeadbeef</span><br><span class="line">vPushReg4	R15	= 0x407193</span><br><span class="line">vPushReg4	R2	= 0x1e1021</span><br><span class="line">vPushReg4	R3	= 0x1e1021</span><br><span class="line">vPushReg4	R1	= 0x1e1021</span><br><span class="line">vPushReg4	R0	= 0xdeadbeef</span><br><span class="line">vPushReg4	R1	= 0x1e1021</span><br><span class="line">vRet</span><br></pre></td></tr></table></figure>
+<p>jcc的目标地址直接通过eflags和一个数算出来了，懵逼，之后再看看。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://markfaction.wordpress.com/2012/07/15/stack-based-vs-register-based-virtual-machine-architecture-and-the-dalvik-vm/" target="_blank" rel="noopener">STACK BASED VS REGISTER BASED VIRTUAL MACHINE ARCHITECTURE, AND THE DALVIK VM</a></p>
+<p><a href="https://www.52pojie.cn/thread-713219-1-1.html" target="_blank" rel="noopener">如何分析虚拟机系列(1)：新手篇VMProtect 1.81 Demo</a></p>
+<p><a href="https://www.52pojie.cn/thread-723307-1-1.html" target="_blank" rel="noopener">如何分析虚拟机(2)：进阶篇 VMProtect 2.13.8</a></p>
+<p><a href="https://github.com/teemu-l/execution-trace-viewer" target="_blank" rel="noopener">execution-trace-viewer</a> x64dbg trace分析工具</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/09/04/Windows-x64-SEH笔记/" rel="next" title="Windows x64 SEH笔记">
+                <i class="fa fa-chevron-left"></i> Windows x64 SEH笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/12/24/hello-world/" rel="prev" title="Hello World">
+                Hello World <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#虚拟机架构"><span class="nav-number">1.</span> <span class="nav-text">虚拟机架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基于栈的（Stack-based）"><span class="nav-number">1.1.</span> <span class="nav-text">基于栈的（Stack-based）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于寄存器的（Register-based）"><span class="nav-number">1.2.</span> <span class="nav-text">基于寄存器的（Register-based）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VMProtect-1-81-Demo分析"><span class="nav-number">2.</span> <span class="nav-text">VMProtect 1.81 Demo分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VMP结构"><span class="nav-number">2.1.</span> <span class="nav-text">VMP结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-entry"><span class="nav-number">2.2.</span> <span class="nav-text">vm_entry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-handler"><span class="nav-number">2.3.</span> <span class="nav-text">vm_handler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-data"><span class="nav-number">2.4.</span> <span class="nav-text">vm_data</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VMProtect-1-8-分析"><span class="nav-number">3.</span> <span class="nav-text">VMProtect 1.8 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-dispatcher"><span class="nav-number">3.1.</span> <span class="nav-text">vm_dispatcher</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-handler-1"><span class="nav-number">3.2.</span> <span class="nav-text">vm_handler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vm-data-1"><span class="nav-number">3.3.</span> <span class="nav-text">vm_data</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
