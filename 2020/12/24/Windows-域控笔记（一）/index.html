@@ -108,21 +108,26 @@
 
 
 
-  <meta property="og:type" content="article">
-<meta property="og:title" content="Windows 域控笔记">
-<meta property="og:url" content="http://sup817ch.github.io/2020/12/24/Windows-域控笔记/index.html">
+  <meta name="description" content="本篇介绍一些基础概念和相关知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 域控笔记（一）">
+<meta property="og:url" content="http://sup817ch.github.io/2020/12/24/Windows-域控笔记（一）/index.html">
 <meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="本篇介绍一些基础概念和相关知识">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-12-24T03:09:26.764Z">
+<meta property="og:image" content="https://blogvaronis2.wpengine.com/wp-content/uploads/2018/12/what-can-mimikatz-do@2x-1-960x669.png">
+<meta property="og:updated_time" content="2020-12-24T05:57:23.507Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Windows 域控笔记">
+<meta name="twitter:title" content="Windows 域控笔记（一）">
+<meta name="twitter:description" content="本篇介绍一些基础概念和相关知识">
+<meta name="twitter:image" content="https://blogvaronis2.wpengine.com/wp-content/uploads/2018/12/what-can-mimikatz-do@2x-1-960x669.png">
 
 
 
 
 
 
-  <link rel="canonical" href="http://sup817ch.github.io/2020/12/24/Windows-域控笔记/"/>
+  <link rel="canonical" href="http://sup817ch.github.io/2020/12/24/Windows-域控笔记（一）/"/>
 
 
 
@@ -132,7 +137,7 @@
   };
 </script>
 
-  <title>Windows 域控笔记 | sup817ch's blog</title>
+  <title>Windows 域控笔记（一） | sup817ch's blog</title>
   
 
 
@@ -285,7 +290,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/12/24/Windows-域控笔记/">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/12/24/Windows-域控笔记（一）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sup817ch">
@@ -302,7 +307,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">Windows 域控笔记
+          <h2 class="post-title" itemprop="name headline">Windows 域控笔记（一）
               
             
           </h2>
@@ -327,9 +332,13 @@
                 
               
 
-              <time title="创建时间：2020-12-24 11:09:26" itemprop="dateCreated datePublished" datetime="2020-12-24T11:09:26+08:00">2020-12-24</time>
+              <time title="创建时间：2020-12-24 11:09:26 / 修改时间：13:57:23" itemprop="dateCreated datePublished" datetime="2020-12-24T11:09:26+08:00">2020-12-24</time>
             
 
+            
+              
+
+              
             
           </span>
 
@@ -361,7 +370,42 @@
       
 
       
-        
+        <p>本篇介绍一些基础概念和相关知识</p>
+<a id="more"></a>
+<h1 id="什么是域？"><a href="#什么是域？" class="headerlink" title="什么是域？"></a>什么是域？</h1><p>Windows域通常用于大型网络——公司网络、学校网络和政府网络。除非你有雇主或学校提供的笔记本电脑，否则你在家里不会遇到这种情况。</p>
+<p>典型的家用计算机是一个孤立的实体。您可以控制计算机上的设置和用户帐户。连接到域的计算机是不同的——这些设置是在<strong>域控制器(DC, domain controller)</strong> 上控制的。</p>
+<p>Windows域为网络管理员提供了一种方法来管理大量的pc机，并从一个地方控制它们。一个或多个服务器(称为域控制器)控制域及其上的计算机。</p>
+<p>域通常由在同一本地网络上的计算机组成。但是，连接到某个域的计算机可以通过VPN或Internet连接继续与域控制器通信。这使得企业和学校能够远程管理他们提供给员工和学生的笔记本电脑。</p>
+<p>当计算机连接到一个域时，它不会使用自己的本地用户帐户，用户帐户和密码都是在域控制器上统一管理。当您登录到该域中的计算机时，计算机将使用域控制器验证您的用户帐户名称和密码。这意味着您可以在任何连接到该域的计算机上使用相同的用户名和密码登录。</p>
+<p>网络管理员可以更改“域控制器”上的组策略设置。域上的每台计算机将从“域控制器”获得这些设置，它们将覆盖用户在其pc上指定的任何本地设置。所有的设置都是从一个地方控制的。这也“锁定”了计算机。您可能不允许更改连接到域的计算机上的许多系统设置。</p>
+<h1 id="域环境搭建"><a href="#域环境搭建" class="headerlink" title="域环境搭建"></a>域环境搭建</h1><p><a href="http://blog.sina.com.cn/s/blog_6ce0f2c901014okt.html" target="_blank" rel="noopener">http://blog.sina.com.cn/s/blog_6ce0f2c901014okt.html</a></p>
+<p><a href="http://www.it165.net/os/html/201306/5493.html" target="_blank" rel="noopener">http://www.it165.net/os/html/201306/5493.html</a></p>
+<h1 id="Kerberos"><a href="#Kerberos" class="headerlink" title="Kerberos"></a>Kerberos</h1><p><a href="https://zh.wikipedia.org/wiki/Windows_2000" target="_blank" rel="noopener">Windows 2000</a>和后续的操作系统使用Kerberos为其默认认证方法。<a href="https://tools.ietf.org/html/rfc3244" target="_blank" rel="noopener">RFC 3244</a> “微软Windows 2000 Kerberos变更密码与设置密码协议” 记录整理一些<a href="https://zh.wikipedia.org/wiki/微软" target="_blank" rel="noopener">微软</a>对Kerberos协议软件包的添加。<a href="https://tools.ietf.org/html/rfc4757" target="_blank" rel="noopener">RFC 4757</a> 记录整理微软对<a href="https://zh.wikipedia.org/wiki/RC4" target="_blank" rel="noopener">RC4</a>密码的使用。虽然微软使用Kerberos协议，却并没有用麻省理工的软件。</p>
+<p>维基：</p>
+<p><a href="https://zh.wikipedia.org/wiki/Kerberos" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/Kerberos</a></p>
+<p>其他资料：</p>
+<p><a href="https://www.zhihu.com/question/22177404" target="_blank" rel="noopener">能用通用的语言介绍下 Kerberos 协议么？</a>（通俗解释）</p>
+<p><a href="https://www.varonis.com/blog/kerberos-authentication-explained/" target="_blank" rel="noopener">Kerberos Authentication Explained</a></p>
+<p><a href="https://blog.csdn.net/wulantian/article/details/42418231" target="_blank" rel="noopener">kerberos认证原理</a></p>
+<p><a href="https://attack.mitre.org/techniques/T1558/" target="_blank" rel="noopener">Steal or Forge Kerberos Tickets</a> （对Kerberos的一些攻击方式）</p>
+<h1 id="Mimikatz"><a href="#Mimikatz" class="headerlink" title="Mimikatz"></a>Mimikatz</h1><p>Mimikatz是一款开源应用程序，允许用户查看和保存Kerberos tickets之类的身份验证凭据。本杰明·德尔皮（Benjamin Delpy）继续领导Mimikatz的开发，因此该工具集可与当前版本的Windows配合使用，并包括最新的攻击。</p>
+<p><strong>Mimikatz能做什么</strong></p>
+<ul>
+<li><strong>Pass-the-Hash:</strong> Windows used to <a href="https://www.varonis.com/blog/windows-10-authentication-the-end-of-pass-the-hash/" target="_blank" rel="noopener">store password data in an NTLM hash</a>. Attackers use Mimikatz to pass that exact hash string to the target computer to login. Attackers don’t even need to crack the password, they just need to use the hash string as is. It’s the equivalent of finding the master key to a building on the floor. You need that one key to get into all the doors.</li>
+<li><strong>Pass-the-Ticket:</strong> Newer versions of windows store password data in a construct called a ticket.  Mimikatz provides functionality for a user to pass a kerberos ticket to another computer and login with that user’s ticket. It’s basically the same as pass-the-hash otherwise.</li>
+<li><strong>Over-Pass the Hash (Pass the Key):</strong> Yet another flavor of the pass-the-hash, but this technique passes a unique key to impersonate a user you can obtain from a domain controller.</li>
+<li><strong>Kerberos Golden Ticket:</strong> This is a pass-the-ticket attack, but it’s a specific ticket for a hidden account called KRBTGT, which is the account that encrypts all of the other tickets. A <a href="https://www.varonis.com/blog/kerberos-how-to-stop-golden-tickets/" target="_blank" rel="noopener">golden ticket</a> gives you domain admin credentials to any computer on the network that doesn’t expire.</li>
+<li><strong>Kerberos Silver Ticket:</strong> Another pass-the-ticket, but a <a href="https://www.varonis.com/blog/kerberos-attack-silver-ticket/" target="_blank" rel="noopener">silver ticket</a> takes advantage of a feature in Windows that makes it easy for you to use services on the network. Kerberos grants a user a TGS ticket, and a user can use that ticket to log into any services on the network. Microsoft doesn’t always check a TGS after it’s issued, so it’s easy to slip it past any safeguards.</li>
+<li><strong>Pass-the-Cache:</strong> Finally an attack that doesn’t take advantage of Windows! A pass-the-cache attack is generally the same as a pass-the-ticket, but this one uses the saved and encrypted login data on a Mac/UNIX/Linux system.</li>
+</ul>
+<p><img src="https://blogvaronis2.wpengine.com/wp-content/uploads/2018/12/what-can-mimikatz-do@2x-1-960x669.png" alt=""></p>
+<p>Mimikatz github: </p>
+<p><a href="https://github.com/gentilkiwi/mimikatz" target="_blank" rel="noopener">https://github.com/gentilkiwi/mimikatz</a></p>
+<p>其他资料：</p>
+<p><a href="https://www.varonis.com/blog/what-is-mimikatz/" target="_blank" rel="noopener">What is Mimikatz: The Beginner’s Guide</a></p>
+<p><a href="https://www.cnblogs.com/-mo-/p/11890232.html" target="_blank" rel="noopener">[后渗透]Mimikatz使用大全</a></p>
+<p><a href="https://www.freebuf.com/articles/web/176796.html" target="_blank" rel="noopener">九种姿势运行Mimikatz</a>（包含了一些绕过杀软的手段）</p>
+
       
     </div>
 
@@ -445,8 +489,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -491,6 +544,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是域？"><span class="nav-number">1.</span> <span class="nav-text">什么是域？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#域环境搭建"><span class="nav-number">2.</span> <span class="nav-text">域环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kerberos"><span class="nav-number">3.</span> <span class="nav-text">Kerberos</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mimikatz"><span class="nav-number">4.</span> <span class="nav-text">Mimikatz</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
