@@ -1,5 +1,5 @@
 ---
-title: Windows 域控笔记
+title: Windows 域笔记
 date: 2020-12-24 11:09:26
 tags:
 ---
@@ -62,7 +62,7 @@ https://zh.wikipedia.org/wiki/Kerberos
 
 [Windows安全认证是如何进行的？[NTLM篇]](https://www.cnblogs.com/artech/archive/2011/01/25/NTLM.html)
 
-[windows protocol](https://daiker.gitbook.io/windows-protocol/)（对Kerberos、NTLM、LDAP的一些介绍）
+[windows protocol](https://daiker.gitbook.io/windows-protocol/)（对Kerberos、NTLM、LDAP的一些介绍，比较详细，可以多看看）
 
 
 
@@ -93,3 +93,12 @@ https://github.com/gentilkiwi/mimikatz
 
 [九种姿势运行Mimikatz](https://www.freebuf.com/articles/web/176796.html)（包含了一些绕过杀软的手段）
 
+[深入分析Mimikatz：WDigest](https://www.anquanke.com/post/id/180126)
+
+[刨根问底：Hash传递攻击原理探究](https://www.freebuf.com/articles/terminal/80186.html)
+
+
+
+# 相关书籍
+
+《内网安全攻防：渗透测试实战指南》
