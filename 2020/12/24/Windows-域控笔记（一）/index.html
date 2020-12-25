@@ -116,7 +116,7 @@
 <meta property="og:description" content="本篇介绍一些基础概念和相关知识">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://blogvaronis2.wpengine.com/wp-content/uploads/2018/12/what-can-mimikatz-do@2x-1-960x669.png">
-<meta property="og:updated_time" content="2020-12-24T05:57:23.507Z">
+<meta property="og:updated_time" content="2020-12-25T06:21:21.199Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Windows 域控笔记（一）">
 <meta name="twitter:description" content="本篇介绍一些基础概念和相关知识">
@@ -332,12 +332,24 @@
                 
               
 
-              <time title="创建时间：2020-12-24 11:09:26 / 修改时间：13:57:23" itemprop="dateCreated datePublished" datetime="2020-12-24T11:09:26+08:00">2020-12-24</time>
+              <time title="创建时间：2020-12-24 11:09:26" itemprop="dateCreated datePublished" datetime="2020-12-24T11:09:26+08:00">2020-12-24</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-12-25 14:21:21" itemprop="dateModified" datetime="2020-12-25T14:21:21+08:00">2020-12-25</time>
               
             
           </span>
@@ -380,14 +392,21 @@
 <p>网络管理员可以更改“域控制器”上的组策略设置。域上的每台计算机将从“域控制器”获得这些设置，它们将覆盖用户在其pc上指定的任何本地设置。所有的设置都是从一个地方控制的。这也“锁定”了计算机。您可能不允许更改连接到域的计算机上的许多系统设置。</p>
 <h1 id="域环境搭建"><a href="#域环境搭建" class="headerlink" title="域环境搭建"></a>域环境搭建</h1><p><a href="http://blog.sina.com.cn/s/blog_6ce0f2c901014okt.html" target="_blank" rel="noopener">http://blog.sina.com.cn/s/blog_6ce0f2c901014okt.html</a></p>
 <p><a href="http://www.it165.net/os/html/201306/5493.html" target="_blank" rel="noopener">http://www.it165.net/os/html/201306/5493.html</a></p>
-<h1 id="Kerberos"><a href="#Kerberos" class="headerlink" title="Kerberos"></a>Kerberos</h1><p><a href="https://zh.wikipedia.org/wiki/Windows_2000" target="_blank" rel="noopener">Windows 2000</a>和后续的操作系统使用Kerberos为其默认认证方法。<a href="https://tools.ietf.org/html/rfc3244" target="_blank" rel="noopener">RFC 3244</a> “微软Windows 2000 Kerberos变更密码与设置密码协议” 记录整理一些<a href="https://zh.wikipedia.org/wiki/微软" target="_blank" rel="noopener">微软</a>对Kerberos协议软件包的添加。<a href="https://tools.ietf.org/html/rfc4757" target="_blank" rel="noopener">RFC 4757</a> 记录整理微软对<a href="https://zh.wikipedia.org/wiki/RC4" target="_blank" rel="noopener">RC4</a>密码的使用。虽然微软使用Kerberos协议，却并没有用麻省理工的软件。</p>
+<h1 id="Windows安全认证机制"><a href="#Windows安全认证机制" class="headerlink" title="Windows安全认证机制"></a>Windows安全认证机制</h1><p>Windows安全认证机制主要有两种：NTLM和Kerberos</p>
+<p>基于ntlm的认证方式,主要用在早期的windows工作组环境中,认证的过程也相对比较简单。</p>
+<p>另一种是基于Kerberos的认证方式,主要用在域环境中。</p>
+<p><a href="https://zh.wikipedia.org/wiki/Windows_2000" target="_blank" rel="noopener">Windows 2000</a>和后续的操作系统使用Kerberos为其默认认证方法。<a href="https://tools.ietf.org/html/rfc3244" target="_blank" rel="noopener">RFC 3244</a> “微软Windows 2000 Kerberos变更密码与设置密码协议” 记录整理一些<a href="https://zh.wikipedia.org/wiki/微软" target="_blank" rel="noopener">微软</a>对Kerberos协议软件包的添加。<a href="https://tools.ietf.org/html/rfc4757" target="_blank" rel="noopener">RFC 4757</a> 记录整理微软对<a href="https://zh.wikipedia.org/wiki/RC4" target="_blank" rel="noopener">RC4</a>密码的使用。虽然微软使用Kerberos协议，却并没有用麻省理工的软件。</p>
 <p>维基：</p>
+<p><a href="https://en.wikipedia.org/wiki/NT_LAN_Manager" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/NT_LAN_Manager</a></p>
 <p><a href="https://zh.wikipedia.org/wiki/Kerberos" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/Kerberos</a></p>
 <p>其他资料：</p>
 <p><a href="https://www.zhihu.com/question/22177404" target="_blank" rel="noopener">能用通用的语言介绍下 Kerberos 协议么？</a>（通俗解释）</p>
 <p><a href="https://www.varonis.com/blog/kerberos-authentication-explained/" target="_blank" rel="noopener">Kerberos Authentication Explained</a></p>
 <p><a href="https://blog.csdn.net/wulantian/article/details/42418231" target="_blank" rel="noopener">kerberos认证原理</a></p>
 <p><a href="https://attack.mitre.org/techniques/T1558/" target="_blank" rel="noopener">Steal or Forge Kerberos Tickets</a> （对Kerberos的一些攻击方式）</p>
+<p><a href="https://www.cnblogs.com/artech/archive/2011/01/24/kerberos.html" target="_blank" rel="noopener">Windows安全认证是如何进行的？[Kerberos篇]</a></p>
+<p><a href="https://www.cnblogs.com/artech/archive/2011/01/25/NTLM.html" target="_blank" rel="noopener">Windows安全认证是如何进行的？[NTLM篇]</a></p>
+<p><a href="https://daiker.gitbook.io/windows-protocol/" target="_blank" rel="noopener">windows protocol</a>（对Kerberos、NTLM、LDAP的一些介绍）</p>
 <h1 id="Mimikatz"><a href="#Mimikatz" class="headerlink" title="Mimikatz"></a>Mimikatz</h1><p>Mimikatz是一款开源应用程序，允许用户查看和保存Kerberos tickets之类的身份验证凭据。本杰明·德尔皮（Benjamin Delpy）继续领导Mimikatz的开发，因此该工具集可与当前版本的Windows配合使用，并包括最新的攻击。</p>
 <p><strong>Mimikatz能做什么</strong></p>
 <ul>
@@ -554,7 +573,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是域？"><span class="nav-number">1.</span> <span class="nav-text">什么是域？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#域环境搭建"><span class="nav-number">2.</span> <span class="nav-text">域环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kerberos"><span class="nav-number">3.</span> <span class="nav-text">Kerberos</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mimikatz"><span class="nav-number">4.</span> <span class="nav-text">Mimikatz</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是域？"><span class="nav-number">1.</span> <span class="nav-text">什么是域？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#域环境搭建"><span class="nav-number">2.</span> <span class="nav-text">域环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Windows安全认证机制"><span class="nav-number">3.</span> <span class="nav-text">Windows安全认证机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mimikatz"><span class="nav-number">4.</span> <span class="nav-text">Mimikatz</span></a></li></ol></div>
             
 
           </div>
