@@ -32,11 +32,19 @@ http://www.it165.net/os/html/201306/5493.html
 
 
 
-# Kerberos
+# Windows安全认证机制
+
+Windows安全认证机制主要有两种：NTLM和Kerberos
+
+基于ntlm的认证方式,主要用在早期的windows工作组环境中,认证的过程也相对比较简单。
+
+另一种是基于Kerberos的认证方式,主要用在域环境中。
 
 [Windows 2000](https://zh.wikipedia.org/wiki/Windows_2000)和后续的操作系统使用Kerberos为其默认认证方法。[RFC 3244](https://tools.ietf.org/html/rfc3244) "微软Windows 2000 Kerberos变更密码与设置密码协议" 记录整理一些[微软](https://zh.wikipedia.org/wiki/微软)对Kerberos协议软件包的添加。[RFC 4757](https://tools.ietf.org/html/rfc4757) 记录整理微软对[RC4](https://zh.wikipedia.org/wiki/RC4)密码的使用。虽然微软使用Kerberos协议，却并没有用麻省理工的软件。
 
 维基：
+
+https://en.wikipedia.org/wiki/NT_LAN_Manager
 
 https://zh.wikipedia.org/wiki/Kerberos
 
@@ -49,6 +57,12 @@ https://zh.wikipedia.org/wiki/Kerberos
 [kerberos认证原理](https://blog.csdn.net/wulantian/article/details/42418231)
 
 [Steal or Forge Kerberos Tickets](https://attack.mitre.org/techniques/T1558/) （对Kerberos的一些攻击方式）
+
+[Windows安全认证是如何进行的？[Kerberos篇]](https://www.cnblogs.com/artech/archive/2011/01/24/kerberos.html)
+
+[Windows安全认证是如何进行的？[NTLM篇]](https://www.cnblogs.com/artech/archive/2011/01/25/NTLM.html)
+
+[windows protocol](https://daiker.gitbook.io/windows-protocol/)（对Kerberos、NTLM、LDAP的一些介绍）
 
 
 
