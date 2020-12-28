@@ -95,6 +95,8 @@ https://github.com/gentilkiwi/mimikatz
 
 [深入分析Mimikatz：WDigest](https://www.anquanke.com/post/id/180126)
 
+[深入分析Mimikatz：SSP](https://www.anquanke.com/post/id/180001)
+
 [刨根问底：Hash传递攻击原理探究](https://www.freebuf.com/articles/terminal/80186.html)
 
 [Unofficial Guide to Mimikatz & Command Reference](https://adsecurity.org/?page_id=1821)（介绍了mimikatz的使用方法和检测方法）
