@@ -197,7 +197,7 @@ PID          Image
 0x0000100c   C:WindowsSystem32WindowsPowerShellv1.0powershell.exe
 ```
 
-## 查看进程接收的提供者
+## 查看进程向哪些提供者写入事件
 
 ```
 > logman query providers -pid 5244
