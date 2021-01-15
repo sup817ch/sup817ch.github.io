@@ -24,13 +24,13 @@ Event Tracing API分为三个组件：
 
 
 
-# Controllers
+## Controllers
 
 Controllers用于定义日志文件的大小和位置，启动和停止事件跟踪会话以及启用提供程序，以便提供程序能将事件记录到会话，管理缓冲池的大小以及获取会话的执行统计信息。会话的统计信息包括缓冲区的使用数量，投递数量以及事件和缓冲区的丢失数量。
 
 
 
-# Providers
+## Providers
 
 Providers具有提供事件的能力。在provider注册之后，controller就可以启用或禁用provider的事件跟踪。provider定义其对启用或禁用的解释。通常，一个启用的provider将生成事件，而禁用的provider则不会。这让使用者可以添加事件跟踪到应用程序中而无需一直生成事件。
 
@@ -66,9 +66,189 @@ Providers有以下几种类型：
 
 
 
-# Consumers
+## Consumers
 
 Consumers可以选择一个或多个事件跟踪会话作为事件的源。consumer可以同时从多个事件跟踪会话中请求事件；系统按事件顺序投递事件。consumer可以从日志文件中接收事件，也可以从会话中实时接收事件。当处理事件时，consumer可以指定开始和结束时间，只有在指定时间内的事件才会被投递。
+
+
+
+# logman使用
+
+## 列出所有正在运行的跟踪会话
+
+```
+> logman query -ets
+Data Collector Set                Type    Status
+-------------------------------------------------
+Circular Kernel Context Logger    Trace   Running
+AppModel                          Trace   Running
+ScreenOnPowerStudyTraceSession    Trace   Running
+DiagLog                           Trace   Running
+EventLog-Application              Trace   Running
+EventLog-System                   Trace   Running
+LwtNetLog                         Trace   Running
+NtfsLog                           Trace   Running
+TileStore                         Trace   Running
+UBPM                              Trace   Running
+WdiContextLog                     Trace   Running
+WiFiSession                       Trace   Running
+UserNotPresentTraceSession        Trace   Running
+Diagtrack-Listener                Trace   Running
+MSDTC_TRACE_SESSION               Trace   Running
+WindowsUpdate_trace_log           Trace   Running
+```
+
+## 列出所有订阅跟踪会话的提供者
+
+```
+> logman query "EventLog-Application" -ets
+Name:                 EventLog-Application
+Status:               Running
+Root Path:            %systemdrive%PerfLogsAdmin
+Segment:              Off
+Schedules:            On
+Segment Max Size:     100 MB
+
+Name:                 EventLog-ApplicationEventLog-Application
+Type:                 Trace
+Append:               Off
+Circular:             Off
+Overwrite:            Off
+Buffer Size:          64
+Buffers Lost:         0
+Buffers Written:      242
+Buffer Flush Timer:   1
+Clock Type:           System
+File Mode:            Real-time
+
+Provider:
+Name:                 Microsoft-Windows-SenseIR
+Provider Guid:        {B6D775EF-1436-4FE6-BAD3-9E436319E218}
+Level:                255
+KeywordsAll:          0x0
+KeywordsAny:          0x8000000000000000 (Microsoft-Windows-SenseIR/Operational)
+Properties:           65
+Filter Type:          0
+
+Provider:
+Name:                 Microsoft-Windows-WDAG-Service
+Provider Guid:        {728B02D9-BF21-49F6-BE3F-91BC06F7467E}
+Level:                255
+KeywordsAll:          0x0
+KeywordsAny:          0x8000000000000000
+Properties:           65
+Filter Type:          0
+
+...
+
+Provider:
+Name:                 Microsoft-Windows-PowerShell
+Provider Guid:        {A0C1853B-5C40-4B15-8766-3CF1C58F985A}
+Level:                255
+KeywordsAll:          0x0
+KeywordsAny:          0x9000000000000000 (Microsoft-Windows-PowerShell/Operational,Microsoft-Windows-PowerShell/Admin)
+Properties:           65
+Filter Type:          0
+```
+
+## 列出所有已注册的ETW提供者
+
+```
+> logman query providers
+```
+
+## 单独查看提供者
+
+```
+> logman query providers Microsoft-Windows-PowerShell
+Provider                        GUID
+----------------------------------------------------------------------
+Microsoft-Windows-PowerShell    {A0C1853B-5C40-4B15-8766-3CF1C58F985A}
+
+Value               Keyword              Description
+----------------------------------------------------------------------
+0x0000000000000001  Runspace             PowerShell Runspace
+0x0000000000000002  Pipeline             Pipeline of Commands
+0x0000000000000004  Protocol             PowerShell remoting protocol
+0x0000000000000008  Transport            PowerShell remoting transport
+0x0000000000000010  Host                 PowerShell remoting host proxy calls
+0x0000000000000020  Cmdlets              All remoting cmdlets
+0x0000000000000040  Serializer           The serialization layer
+0x0000000000000080  Session              All session layer
+0x0000000000000100  Plugin               The managed PowerShell plugin worker
+0x0000000000000200  PSWorkflow           PSWorkflow Hosting And Execution Layer
+0x0001000000000000  win:ResponseTime     Response Time
+0x8000000000000000  Microsoft-Windows-PowerShell/Operational Microsoft-Windows-PowerShell/Operational
+0x4000000000000000  Microsoft-Windows-PowerShell/Analytic Microsoft-Windows-PowerShell/Analytic
+0x2000000000000000  Microsoft-Windows-PowerShell/Debug Microsoft-Windows-PowerShell/Debug
+0x1000000000000000  Microsoft-Windows-PowerShell/Admin Microsoft-Windows-PowerShell/Admin
+
+Value        Level                Description
+--------------------------------------------------------------------
+0x02         win:Error            Error
+0x03         win:Warning          Warning
+0x04         win:Informational    Information
+0x05         win:Verbose          Verbose
+0x14         Debug                Debug level defined by PowerShell (which is above Informational defined by system)
+
+PID          Image
+----------------------------------------------------------------------
+0x00000730   C:WindowsSystem32WindowsPowerShellv1.0powershell.exe
+0x0000100c   C:WindowsSystem32WindowsPowerShellv1.0powershell.exe
+```
+
+## 查看进程接收的提供者
+
+```
+> logman query providers -pid 5244
+Provider                                 GUID
+-------------------------------------------------------------------------------
+FWPUCLNT Trace Provider                  {5A1600D2-68E5-4DE7-BCF4-1C2D215FE0FE}
+Microsoft-Antimalware-Protection         {E4B70372-261F-4C54-8FA6-A5A7914D73DA}
+Microsoft-Antimalware-RTP                {8E92DEEF-5E17-413B-B927-59B2F06A3CFC}
+Microsoft-Antimalware-Service            {751EF305-6C6E-4FED-B847-02EF79D26AEF}
+Microsoft-IEFRAME                        {5C8BB950-959E-4309-8908-67961A1205D5}
+Microsoft-Windows-AppXDeployment         {8127F6D4-59F9-4ABF-8952-3E3A02073D5F}
+Microsoft-Windows-ASN1                   {D92EF8AC-99DD-4AB8-B91D-C6EBA85F3755}
+Microsoft-Windows-AsynchronousCausality  {19A4C69A-28EB-4D4B-8D94-5F19055A1B5C}
+Microsoft-Windows-CAPI2                  {5BBCA4A8-B209-48DC-A8C7-B23D3E5216FB}
+Microsoft-Windows-COM-Perf               {B8D6861B-D20F-4EEC-BBAE-87E0DD80602B}
+Microsoft-Windows-COM-RundownInstrumentation {2957313D-FCAA-5D4A-2F69-32CE5F0AC44E}
+Microsoft-Windows-COMRuntime             {BF406804-6AFA-46E7-8A48-6C357E1D6D61}
+Microsoft-Windows-Crypto-BCrypt          {C7E089AC-BA2A-11E0-9AF7-68384824019B}
+Microsoft-Windows-Crypto-NCrypt          {E8ED09DC-100C-45E2-9FC8-B53399EC1F70}
+Microsoft-Windows-Crypto-RSAEnh          {152FDB2B-6E9D-4B60-B317-815D5F174C4A}
+Microsoft-Windows-Deplorch               {B9DA9FE6-AE5F-4F3E-B2FA-8E623C11DC75}
+Microsoft-Windows-DNS-Client             {1C95126E-7EEA-49A9-A3FE-A378B03DDB4D}
+Microsoft-Windows-Heap-Snapshot          {901D2AFA-4FF6-46D7-8D0E-53645E1A47F5}
+Microsoft-Windows-Immersive-Shell-API    {5F0E257F-C224-43E5-9555-2ADCB8540A58}
+Microsoft-Windows-Kernel-AppCompat       {16A1ADC1-9B7F-4CD9-94B3-D8296AB1B130}
+Microsoft-Windows-KnownFolders           {8939299F-2315-4C5C-9B91-ABB86AA0627D}
+Microsoft-Windows-MPS-CLNT               {37945DC2-899B-44D1-B79C-DD4A9E57FF98}
+Microsoft-Windows-Networking-Correlation {83ED54F0-4D48-4E45-B16E-726FFD1FA4AF}
+Microsoft-Windows-NetworkProfile         {FBCFAC3F-8459-419F-8E48-1F0B49CDB85E}
+Microsoft-Windows-RPC                    {6AD52B32-D609-4BE9-AE07-CE8DAE937E39}
+Microsoft-Windows-RPC-Events             {F4AED7C7-A898-4627-B053-44A7CAA12FCD}
+Microsoft-Windows-Schannel-Events        {91CC1150-71AA-47E2-AE18-C96E61736B6F}
+Microsoft-Windows-Shell-Core             {30336ED4-E327-447C-9DE0-51B652C86108}
+Microsoft-Windows-URLMon                 {245F975D-909D-49ED-B8F9-9A75691D6B6B}
+Microsoft-Windows-User Profiles General  {DB00DFB6-29F9-4A9C-9B3B-1F4F9E7D9770}
+Microsoft-Windows-User-Diagnostic        {305FC87B-002A-5E26-D297-60223012CA9C}
+Microsoft-Windows-WebIO                  {50B3E73C-9370-461D-BB9F-26F32D68887D}
+Microsoft-Windows-Windows Defender       {11CD958A-C507-4EF3-B3F2-5FD9DFBD2C78}
+Microsoft-Windows-WinHttp                {7D44233D-3055-4B9C-BA64-0D47CA40A232}
+Microsoft-Windows-WinRT-Error            {A86F8471-C31D-4FBC-A035-665D06047B03}
+Microsoft-Windows-Winsock-NameResolution {55404E71-4DB9-4DEB-A5F5-8F86E46DDE56}
+Network Profile Manager                  {D9131565-E1DD-4C9E-A728-951999C2ADB5}
+Security: SChannel                       {37D2C3CD-C5D4-4587-8531-4696C44244C8}
+Windows Defender Firewall API            {28C9F48F-D244-45A8-842F-DC9FBC9B6E92}
+WMI_Tracing                              {1FF6B227-2CA7-40F9-9A66-980EADAA602E}
+WMI_Tracing_Client_Operations            {8E6B6962-AB54-4335-8229-3255B919DD0E}
+{05F95EFE-7F75-49C7-A994-60A55CC09571}   {05F95EFE-7F75-49C7-A994-60A55CC09571}
+{072665FB-8953-5A85-931D-D06AEAB3D109}   {072665FB-8953-5A85-931D-D06AEAB3D109}
+{7AF898D7-7E0E-518D-5F96-B1E79239484C}   {7AF898D7-7E0E-518D-5F96-B1E79239484C}
+... output truncated ...
+```
 
 
 
